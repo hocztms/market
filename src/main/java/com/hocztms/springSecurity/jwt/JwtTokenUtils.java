@@ -122,6 +122,22 @@ public class JwtTokenUtils {
                 !isTokenExpired(token));
     }
 
+    public Boolean checkRedisBlack(String token){
+        String username = getUsernameFromToken(token);
+        if (username==null){
+            return false;
+        }
+
+        Date date = jwtRedisTemplate.opsForValue().get(RedisUtils.jwtPrefix+username);
+
+        Date jwtDate = getDateFromToken(token);
+
+        if (date!=null&&jwtDate.before(date)){
+            return false;
+        }
+        return true;
+    }
+
 
     //生成token
     private String generateToken(Map<String, Object> claims) {

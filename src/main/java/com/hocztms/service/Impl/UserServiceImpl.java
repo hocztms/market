@@ -10,6 +10,7 @@ import com.hocztms.utils.EamilUtils;
 import com.hocztms.utils.RedisUtils;
 import com.hocztms.vo.PasswordEmail;
 import com.hocztms.vo.UpdateEmailVo;
+import com.hocztms.webSocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,6 +51,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RedisTemplate<String, Date> jwtRedisTemplate;
 
+    @Autowired
+    private WebSocketServer webSocketServer;
+
 
 
     @Override
@@ -79,7 +83,7 @@ public class UserServiceImpl implements UserService {
 
             //主动失效 设置黑名单
             jwtRedisTemplate.opsForValue().set(RedisUtils.jwtPrefix+users.getUsername(),new Date(),60, TimeUnit.MINUTES);
-
+            webSocketServer.close(users.getUsername());
             return new RestResult(1,"修改成功",null);
         }catch (Exception e){
             return new RestResult(0,e.getMessage(),null);

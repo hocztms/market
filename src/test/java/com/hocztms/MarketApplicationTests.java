@@ -8,9 +8,12 @@ import com.hocztms.common.RestResult;
 import com.hocztms.entity.*;
 import com.hocztms.mapper.*;
 import com.hocztms.service.*;
+import com.hocztms.springSecurity.jwt.JwtTokenUtils;
 import com.hocztms.utils.GoodsUtils;
+import com.hocztms.utils.RedisUtils;
 import com.hocztms.utils.WebUtils;
 import com.hocztms.vo.ReportVo;
+import com.hocztms.webSocket.WebSocketServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -88,8 +91,11 @@ class MarketApplicationTests {
     @Resource
     private RedisTemplate<String,String> stringRedisTemplate;
 
+    @Autowired
+    private WebSocketServer webSocketServer;
     @Test
     public void  Test(){
+        jwtRedisTemplate.delete(RedisUtils.jwtPrefix+"abc");
     }
 }
 

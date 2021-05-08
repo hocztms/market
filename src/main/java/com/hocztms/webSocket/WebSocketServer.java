@@ -4,6 +4,7 @@ import com.hocztms.springSecurity.jwt.JwtAuthService;
 import com.hocztms.springSecurity.jwt.JwtTokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,6 +30,18 @@ public class WebSocketServer {
     //concurrent包的线程安全Set，用来存放每个客户端对应的WebSocketServer对象。
     private static Map<String, Session> sessionPools = new HashMap<>();
 
+
+
+    private static JwtTokenUtils jwtTokenUtils;
+
+    @Autowired
+    public void setChatService(JwtTokenUtils jwtTokenUtils) {
+        WebSocketServer.jwtTokenUtils = jwtTokenUtils;
+    }
+
+
+
+
     /*
     发送消息
      */
@@ -43,19 +57,26 @@ public class WebSocketServer {
     */
     @OnOpen
     public void onOpen(Session session, @PathParam(value = "token") String token){
-        JwtTokenUtils jwtTokenUtils = new JwtTokenUtils();
-        String userName = jwtTokenUtils.getUsernameFromToken(token);
-        log.info(userName + "准备进入连接.....");
-        if (userName == null){
+        try {
+            if (!jwtTokenUtils.checkRedisBlack(token)){
+                log.warn(token + "  无效token....");
+                throw new RuntimeException("无效token");
+            }
+        }catch (Exception e){
             log.warn(token + "  无效token....");
             throw new RuntimeException("无效token");
         }
+        String userName = jwtTokenUtils.getUsernameFromToken(token);
+
+        log.info(userName + "准备进入连接.....");
+
         //如果已经存在连接 则删除
         if (sessionPools.get(userName)!=null){
             sessionPools.remove(userName);
         }
 
         sessionPools.put(userName,session);
+        System.out.println(sessionPools.get("abc"));
         addOnlineCount();
         log.info(userName + "加入webSocket！当前人数为" + online);
         try {
@@ -69,10 +90,17 @@ public class WebSocketServer {
     关闭连接
      */
     @OnClose
-    public void onClose(@PathParam(value = "name") String userName){
-        sessionPools.remove(userName);
+    public void onClose(@PathParam(value = "token") String token){
+        String username = jwtTokenUtils.getUsernameFromToken(token);
+        sessionPools.remove(username);
         subOnlineCount();
-        log.info(userName + "断开webSocket连接！当前人数为" + online);
+        log.info(username + "断开webSocket连接！当前人数为" + online);
+    }
+
+    public void close(String username){
+        sessionPools.remove(username);
+        subOnlineCount();
+        log.info(username + "断开webSocket连接！当前人数为" + online);
     }
 
     /*
