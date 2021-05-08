@@ -2,6 +2,7 @@ package com.hocztms.controller;
 
 
 import com.hocztms.common.RestResult;
+import com.hocztms.service.AuthBaseService;
 import com.hocztms.vo.AuthVo;
 import com.hocztms.vo.PasswordEmail;
 import com.hocztms.entity.Users;
@@ -50,6 +51,9 @@ public class UserBaseController {
     @Autowired
     private CodeUtils codeUtils;
 
+    @Autowired
+    private AuthBaseService authBaseService;
+
     /*
     用户登录 (管理员和用户都包含 返回RestResult中 code = 1为用户 2为管理员 0为登录失败)
      */
@@ -76,22 +80,16 @@ public class UserBaseController {
         if (!codeUtils.checkKeyValueByKey("register$"+userVo.getEmail(),userVo.getCode())){
             return new RestResult(0,"验证码不正确",null);
         }
-        return userService.userRegister(new Users(userVo.getUsername(),userVo.getPassword(),userVo.getEmail(),userVo.getPhone(),1,new Date()));
+        return userService.userRegister(new Users(userVo.getUsername(),userVo.getPassword(),userVo.getEmail(),userVo.getPhone(),1));
     }
 
     /*
     用户注销
      */
-    @ApiOperation("用户注销,需要前端删除掉token后调用的方法 此方法只单纯验证 请求头中是否还含有token")
+    @ApiOperation("用户注销,利用redis 设置黑名单")
     @PostMapping("/logout")
     public RestResult logout(HttpServletRequest request) {
-
-        String username = jwtAuthService.getTokenUsername(request);
-
-        //注销 更改最后登录时间
-        userService.updateUserLastLoginDate(username);
-        return new RestResult(1,"操作成功",null);
-
+        return authBaseService.authLogout(request);
     }
 
     /*

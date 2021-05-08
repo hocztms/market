@@ -14,8 +14,10 @@ import com.hocztms.vo.ReportVo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -80,9 +82,14 @@ class MarketApplicationTests {
     @Autowired
     IllegalMapper illegalMapper;
 
+    @Autowired
+    private RedisTemplate<String,Date> jwtRedisTemplate;
+
+    @Resource
+    private RedisTemplate<String,String> stringRedisTemplate;
+
     @Test
     public void  Test(){
-        userService.updateTest();
     }
 }
 

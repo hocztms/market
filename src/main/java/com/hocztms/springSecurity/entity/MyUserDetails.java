@@ -20,7 +20,6 @@ public class MyUserDetails implements UserDetails {
     private String userName;
     private String password;
     private List<GrantedAuthority> authorities;
-    private Date LastLoginDate;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

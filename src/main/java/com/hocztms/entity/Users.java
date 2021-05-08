@@ -18,7 +18,5 @@ public class Users {
     private String email;
     private String phone;
     private int status; //0冻结 1正常使用
-    @TableField(value = "last_loginDate")
-    private Date lastLoginDate;
 
 }

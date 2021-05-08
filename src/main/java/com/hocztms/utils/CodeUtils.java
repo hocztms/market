@@ -1,6 +1,7 @@
 package com.hocztms.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +15,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class CodeUtils {
 
-    @Resource
-    private RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    private RedisTemplate<String, String> codeRedisTemplate;
 
     public static char[] ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
 
@@ -38,26 +39,28 @@ public class CodeUtils {
             stringBuffer.append(ch[index]);
         }
 
-        if (redisTemplate.opsForValue().get("login:" + key)!=null){
-            redisTemplate.delete(key);
+        if (codeRedisTemplate.opsForValue().get(key)!=null){
+            codeRedisTemplate.delete(key);
         }
 
         //存入redis 1分钟有效
-        redisTemplate.opsForValue().set("login:" +key,stringBuffer.toString(),1, TimeUnit.MINUTES);
+        codeRedisTemplate.opsForValue().set(key,stringBuffer.toString(),1, TimeUnit.MINUTES);
         log.info(key + "本次密钥为" + stringBuffer.toString());
         return bufferedImage;
 //        ImageIO.write(bi,"JPG",response.getOutputStream());
     }
 
     public  boolean checkKeyValueByKey(String key,String value){
-        String code = redisTemplate.opsForValue().get(key);
+
+        System.out.println("ok");
+        String code = codeRedisTemplate.opsForValue().get(key);
         if (code==null){
             return false;
         }
         if (!code.equals(value)){
             return false;
         }
-        redisTemplate.delete(key);
+        codeRedisTemplate.delete(key);
         return true;
     }
 
@@ -70,12 +73,12 @@ public class CodeUtils {
             index = random.nextInt(len);
             stringBuffer.append(ch[index]);
         }
-        if (redisTemplate.opsForValue().get(key)!=null){
-            redisTemplate.delete(key);
+        if (codeRedisTemplate.opsForValue().get(key)!=null){
+            codeRedisTemplate.delete(key);
         }
 
         //存入redis 1分钟有效
-        redisTemplate.opsForValue().set(key,stringBuffer.toString(),minutes,TimeUnit.MINUTES);
+        codeRedisTemplate.opsForValue().set(key,stringBuffer.toString(),minutes,TimeUnit.MINUTES);
         return stringBuffer.toString();
     }
 

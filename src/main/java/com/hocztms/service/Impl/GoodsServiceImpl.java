@@ -239,11 +239,6 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsUtils.checkOrderBy(orderBy);
     }
 
-    @Override
-    public boolean isEmpty(Goods goods) {
-        return goodsUtils.isEmpty(goods);
-    }
-
 
     @Override
     public List<Goods> selectListByUsername(String username) {

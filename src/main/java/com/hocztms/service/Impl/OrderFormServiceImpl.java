@@ -161,6 +161,7 @@ public class OrderFormServiceImpl implements OrderFormService {
             if (records==null){
                 recordsService.insertRecords(new OrderFormCancelRecords(0,order.getId(),0,1));
                 updateOrderFormTagById(order.getId(),-1);
+
                 userMessageService.sendUsersMessage(order.getUsername(),"您有新的订单通知 订单号为" + order.getId() + "待取消",1,order.getId());
                 userMessageService.sendUsersMessage(order.getSeller(),"您的订单号为" + order.getId() + "已经取消等待买家核实",1,order.getId());
                 return new RestResult(1,"操作成功,等待买家核实",null);

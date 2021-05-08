@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 public class JwtAuthService  {
 
-    // 此处注入的bean在SpringConfig中产生, 如果不在其中声明则注入AuthenticationManager报错
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -42,16 +41,16 @@ public class JwtAuthService  {
         RestResult result = new RestResult(1,"登入成功",null);
 
         //判断是否为管理员
-        String authorties = String.valueOf(loginUser.getAuthorities());
-        if (authorties.contains("admin")){
+        String authorities = String.valueOf(loginUser.getAuthorities());
+        if (authorities.contains("admin")){
             System.out.println("管理员 "+ loginUser.getUsername() + " 已登录");
             result.setCode(2);
         }
+
         else {
             System.out.println("用户 "+ loginUser.getUsername() + " 已登录");
         }
-        // 生成token
-        userService.updateUserLastLoginDate(username);
+
         result.put("token",jwtTokenUtils.generateToken(loginUser));
         return result;
     }

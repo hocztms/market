@@ -35,7 +35,6 @@ public interface GoodsService {
 
     boolean checkOrderBy(String orderBy);
 
-    boolean isEmpty(Goods goods);
 
     List<Goods> selectListByUsername(String username);
 

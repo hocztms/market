@@ -42,6 +42,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
             authoritys.add(simpleGrantedAuthority);
         }
 
-        return new MyUserDetails(username,usersByUsername.getPassword(),authoritys,usersByUsername.getLastLoginDate());
+        return new MyUserDetails(username,usersByUsername.getPassword(),authoritys);
     }
 }

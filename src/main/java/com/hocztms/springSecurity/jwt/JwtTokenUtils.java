@@ -1,20 +1,25 @@
 package com.hocztms.springSecurity.jwt;
 
 import com.hocztms.springSecurity.entity.MyUserDetails;
+import com.hocztms.utils.RedisUtils;
 import io.jsonwebtoken.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Data
 @Component
@@ -31,15 +36,20 @@ public class JwtTokenUtils {
 
     private static Key KEY = null;
 
+    @Autowired
+    private RedisTemplate<String,Date> jwtRedisTemplate;
+
 
     //生成token
     public String generateToken(UserDetails userDetails) {
         log.info("generateToken执行了..." + userDetails.toString());
-
         Map<String, Object> claims = new HashMap<>(2);
         claims.put("sub", userDetails.getUsername());
         claims.put("created", new Date());
-        return generateToken(claims);
+
+
+        String token = generateToken(claims);
+        return token;
     }
 
 
@@ -85,26 +95,31 @@ public class JwtTokenUtils {
 
     //刷新token
     public Date getDateFromToken(String token) {
-        Date date = new Date();
+
         try {
             Claims claims = getClaimsFromToken(token);
-            date = claims.get("created",Date.class);
+            return claims.get("created", Date.class);
         } catch (Exception e) {
-            date = null;
+            throw new RuntimeException("token失效");
         }
-        return date;
     }
 
+
     //验证token
-    public Boolean validateToken(String token, MyUserDetails userDetails) {
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        Date date = jwtRedisTemplate.opsForValue().get(RedisUtils.jwtPrefix+userDetails.getUsername());
+
+        Claims claims = getClaimsFromToken(token);
 
         String username = getUsernameFromToken(token);
+        Date jwtDate = getDateFromToken(token);
 
-        Date date = getDateFromToken(token);
-
+        if (date!=null&&jwtDate.before(date)){
+            return false;
+        }
 
         return (username.equals(userDetails.getUsername()) &&
-                !isTokenExpired(token)&&userDetails.getLastLoginDate().before(date));
+                !isTokenExpired(token));
     }
 
 

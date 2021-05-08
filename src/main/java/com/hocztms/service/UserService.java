@@ -28,17 +28,9 @@ public interface UserService {
 
     public RestResult getUserGoods(String username);
 
-    public void deleteUserByUsername(String username);
-
     public Integer updateUser(Users users);
 
     public Integer updateUserStatusByUsername(String username,int status);
 
     String userContactToStringByUsername(String username);
-
-    public Integer updateUserLastLoginDate(String username);
-
-    public void updateTest();
-
-    public void test();
 }

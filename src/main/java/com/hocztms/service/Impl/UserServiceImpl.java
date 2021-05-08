@@ -7,6 +7,7 @@ import com.hocztms.entity.*;
 import com.hocztms.mapper.*;
 import com.hocztms.service.*;
 import com.hocztms.utils.EamilUtils;
+import com.hocztms.utils.RedisUtils;
 import com.hocztms.vo.PasswordEmail;
 import com.hocztms.vo.UpdateEmailVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -39,18 +41,22 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private IllegalMapper illegalMapper;
 
-
     @Autowired
     private IllegalUserService illegalUserService;
 
     @Resource
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, String> codeRedisTemplate;
+
+    @Autowired
+    private RedisTemplate<String, Date> jwtRedisTemplate;
+
+
 
     @Override
     public RestResult ReUserPasswordBySecret(PasswordEmail passwordEmail) {
         try{
 
-            String keyValue = redisTemplate.opsForValue().get("re&" + passwordEmail.getUsername());
+            String keyValue = codeRedisTemplate.opsForValue().get("re&" + passwordEmail.getUsername());
 
             if (keyValue==null){
                 return new RestResult(0,"请重新获取密钥",null);
@@ -68,9 +74,12 @@ public class UserServiceImpl implements UserService {
             }
 
             //删除值
-            redisTemplate.delete("re:"+users.getUsername());
-            //修改最后登录时间
-            updateUserLastLoginDate(users.getUsername());
+            codeRedisTemplate.delete("re&"+users.getUsername());
+
+
+            //主动失效 设置黑名单
+            jwtRedisTemplate.opsForValue().set(RedisUtils.jwtPrefix+users.getUsername(),new Date(),60, TimeUnit.MINUTES);
+
             return new RestResult(1,"修改成功",null);
         }catch (Exception e){
             return new RestResult(0,e.getMessage(),null);
@@ -121,7 +130,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public RestResult updateUserEmailByEmailCode(String username, UpdateEmailVo updateEmailVo) {
         try {
-            String redisCode = redisTemplate.opsForValue().get("updateEmail$"+username);
+            String redisCode = codeRedisTemplate.opsForValue().get("updateEmail$"+username);
             if (redisCode==null){
                 return new RestResult(0,"请先获取验证码",null);
             }
@@ -186,22 +195,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
-    @Override
-    public void deleteUserByUsername(String username) {
-        try {
-            Users usersByUsername = findUsersByUsername(username);
-            if (usersByUsername==null){
-                throw new RuntimeException("用户不存在");
-            }
-            QueryWrapper<Users> wrapper = new QueryWrapper<>();
-            wrapper.eq("username",username);
-            usersMapper.delete(wrapper);
-        }catch (Exception e){
-            throw new RuntimeException("删除失败");
-        }
-    }
-
     @Override
     public Integer updateUser(Users users) {
         QueryWrapper<Users> wrapper = new QueryWrapper<>();
@@ -227,36 +220,6 @@ public class UserServiceImpl implements UserService {
         return "email:" + user.getEmail() + "  phone:" + user.getPhone();
     }
 
-    @Override
-    public Integer updateUserLastLoginDate(String username) {
-        QueryWrapper<Users> wrapper = new QueryWrapper<>();
-        wrapper.eq("username",username);
-        Users usersByUsername = findUsersByUsername(username);
-        usersByUsername.setLastLoginDate(new Date());
-        return usersMapper.update(usersByUsername,wrapper);
-    }
-
-    @Override
-    public void updateTest() {
-
-        test();
-        QueryWrapper<Users> wrapper = new QueryWrapper<>();
-        Users usersByUsername = findUsersByUsername("abc");
-
-        wrapper.eq("usr","abc");
-        usersByUsername.setStatus(3);
-        usersMapper.update(usersByUsername,wrapper);
-    }
-
-    @Override
-    public void test() {
-        QueryWrapper<Users> wrapper = new QueryWrapper<>();
-        Users usersByUsername = findUsersByUsername("abc");
-        wrapper.eq("username","abc");
-        usersByUsername.setStatus(0);
-        usersMapper.update(usersByUsername,wrapper);
-
-    }
 
     @Override
     public Users findUsersByUsername(String username) {
