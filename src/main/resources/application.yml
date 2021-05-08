@@ -1,0 +1,42 @@
+# DataSource Config
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/market?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: password
+
+
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 1107578936@qq.com
+    password: ydhebwdqmghfibbg
+    default-encoding: UTF-8
+    protocol: smtp
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+    lettuce:
+      shutdown-timeout: 0
+
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: tb_
+
+
+
+

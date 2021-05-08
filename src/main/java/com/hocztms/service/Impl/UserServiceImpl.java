@@ -1,0 +1,269 @@
+package com.hocztms.service.Impl;
+
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.hocztms.common.RestResult;
+import com.hocztms.entity.*;
+import com.hocztms.mapper.*;
+import com.hocztms.service.*;
+import com.hocztms.utils.EamilUtils;
+import com.hocztms.vo.PasswordEmail;
+import com.hocztms.vo.UpdateEmailVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private UsersMapper usersMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleMapper roleMapper;
+
+    @Autowired
+    private EamilUtils eamilUtils;
+
+    @Autowired
+    private GoodsService goodsService;
+
+    @Autowired
+    private IllegalMapper illegalMapper;
+
+
+    @Autowired
+    private IllegalUserService illegalUserService;
+
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Override
+    public RestResult ReUserPasswordBySecret(PasswordEmail passwordEmail) {
+        try{
+
+            String keyValue = redisTemplate.opsForValue().get("re&" + passwordEmail.getUsername());
+
+            if (keyValue==null){
+                return new RestResult(0,"请重新获取密钥",null);
+            }
+            if (!keyValue.equals(passwordEmail.getSecret())){
+                return new RestResult(0,"密钥不正确请重新输入",null);
+            }
+
+            Users users = findUsersByUsername(passwordEmail.getUsername());
+
+            users.setPassword(passwordEncoder.encode(passwordEmail.getPassword()));
+
+            if (updateUser(users)==0){
+                return new RestResult(0,"修改失败",null);
+            }
+
+            //删除值
+            redisTemplate.delete("re:"+users.getUsername());
+            //修改最后登录时间
+            updateUserLastLoginDate(users.getUsername());
+            return new RestResult(1,"修改成功",null);
+        }catch (Exception e){
+            return new RestResult(0,e.getMessage(),null);
+        }
+    }
+
+    @Override
+    public RestResult userRegister(Users users) {
+        try {
+            Users usersByUsername = findUsersByUsername(users.getUsername());
+            List<Users> usersByEmail = findUsersByEmail(users.getEmail());
+            List<Users> usersByPhone = findUsersByPhone(users.getPhone());
+            Role role = new Role(users.getUsername(),"user");
+            if (usersByUsername != null) {
+                return new RestResult(0, "用户名已存在", null);
+            }
+            if (!usersByEmail.isEmpty()) {
+                return new RestResult(0, "该邮箱已注册", null);
+            }
+
+            if (!usersByPhone.isEmpty()) {
+                return new RestResult(0, "该手机号已注册", null);
+            }
+            //发送注册成功邮件并且测试邮箱是否可用;
+            Email email = new Email(users.getUsername(),users.getEmail(),"通知","您的账号 " + users.getUsername()+" 注册成功",new Date(),null);
+            eamilUtils.sendEamil(email);
+
+
+            //创建 违法记录
+
+            Illegal illegal = illegalUserService.findIllegalUserByUsername(users.getUsername());
+            if (illegal!=null){
+                illegalUserService.deleteIllegalUserByUsername(users.getUsername());
+            }
+
+            String encodePassword = passwordEncoder.encode(users.getPassword());
+            users.setPassword(encodePassword);
+            users.setStatus(1);
+            usersMapper.insert(users);
+            roleMapper.insert(role);
+            illegalMapper.insert(new Illegal(users.getUsername(),0,1,1));
+        } catch (Exception e) {
+            return new RestResult(0, e.getMessage(), null);
+        }
+        return new RestResult(1, "注册成功", null);
+    }
+
+    @Override
+    public RestResult updateUserEmailByEmailCode(String username, UpdateEmailVo updateEmailVo) {
+        try {
+            String redisCode = redisTemplate.opsForValue().get("updateEmail$"+username);
+            if (redisCode==null){
+                return new RestResult(0,"请先获取验证码",null);
+            }
+
+            if (findUsersByEmail(updateEmailVo.getEmail())!=null){
+                return new RestResult(0,"邮箱已注册",null);
+            }
+            Users users = findUsersByUsername(username);
+
+            users.setEmail(updateEmailVo.getEmail());
+            updateUser(users);
+            return new RestResult(1,"操作成功",null);
+        }catch (Exception e){
+            return new RestResult(0,"操作失败",null);
+        }
+    }
+
+    @Override
+    public RestResult updateUserPhoneByUsername(String username, String phone) {
+        try {
+            if (findUsersByPhone(phone)!=null){
+                return new RestResult(0,"该手机已注册",null);
+            }
+            Users usersByUsername = findUsersByUsername(username);
+            usersByUsername.setPhone(phone);
+            updateUser(usersByUsername);
+            return new RestResult(1,"操作成功",null);
+        }catch (Exception e){
+            return new RestResult(0,"操作失败",null);
+        }
+    }
+
+    @Override
+    public List<Users> findUsersByEmail(String email) {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        wrapper.eq("email",email);
+        return usersMapper.selectList(wrapper);
+
+    }
+
+    @Override
+    public List<Users> findUsersByPhone(String phone) {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        wrapper.eq("phone",phone);
+        return usersMapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<Role> getUserRoles(String username) {
+        QueryWrapper<Role> wrapper = new QueryWrapper<>();
+        wrapper.eq("username",username);
+        return roleMapper.selectList(wrapper);
+    }
+
+    @Override
+    public RestResult getUserGoods(String username) {
+        try {
+            List<Goods> goods = goodsService.selectListByUsername(username);
+            return new RestResult(1,"成功",goods);
+        }catch (Exception e){
+            return new RestResult(1,"失败",0);
+        }
+    }
+
+
+    @Override
+    public void deleteUserByUsername(String username) {
+        try {
+            Users usersByUsername = findUsersByUsername(username);
+            if (usersByUsername==null){
+                throw new RuntimeException("用户不存在");
+            }
+            QueryWrapper<Users> wrapper = new QueryWrapper<>();
+            wrapper.eq("username",username);
+            usersMapper.delete(wrapper);
+        }catch (Exception e){
+            throw new RuntimeException("删除失败");
+        }
+    }
+
+    @Override
+    public Integer updateUser(Users users) {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        wrapper.eq("username",users.getUsername());
+        return usersMapper.update(users,wrapper);
+    }
+
+    @Override
+    public Integer updateUserStatusByUsername(String username,int status) {
+        if (illegalUserService.updateIllegalUserStatusByUsername(username,status)==0) {
+            return 0;
+        }
+        QueryWrapper <Users> wrapper = new QueryWrapper<>();
+        wrapper.eq("username",username);
+        Users usersByUsername = findUsersByUsername(username);
+        usersByUsername.setStatus(status);
+        return usersMapper.update(usersByUsername,wrapper);
+    }
+
+    @Override
+    public String userContactToStringByUsername(String username) {
+        Users user = findUsersByUsername(username);
+        return "email:" + user.getEmail() + "  phone:" + user.getPhone();
+    }
+
+    @Override
+    public Integer updateUserLastLoginDate(String username) {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        wrapper.eq("username",username);
+        Users usersByUsername = findUsersByUsername(username);
+        usersByUsername.setLastLoginDate(new Date());
+        return usersMapper.update(usersByUsername,wrapper);
+    }
+
+    @Override
+    public void updateTest() {
+
+        test();
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        Users usersByUsername = findUsersByUsername("abc");
+
+        wrapper.eq("usr","abc");
+        usersByUsername.setStatus(3);
+        usersMapper.update(usersByUsername,wrapper);
+    }
+
+    @Override
+    public void test() {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        Users usersByUsername = findUsersByUsername("abc");
+        wrapper.eq("username","abc");
+        usersByUsername.setStatus(0);
+        usersMapper.update(usersByUsername,wrapper);
+
+    }
+
+    @Override
+    public Users findUsersByUsername(String username) {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
+        wrapper.eq("username",username);
+        return usersMapper.selectOne(wrapper);
+    }
+
+
+}
