@@ -51,8 +51,6 @@ public class CodeUtils {
     }
 
     public  boolean checkKeyValueByKey(String key,String value){
-
-        System.out.println("ok");
         String code = codeRedisTemplate.opsForValue().get(key);
         if (code==null){
             return false;

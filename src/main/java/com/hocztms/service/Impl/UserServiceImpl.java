@@ -8,19 +8,15 @@ import com.hocztms.mapper.*;
 import com.hocztms.redis.RedisService;
 import com.hocztms.service.*;
 import com.hocztms.utils.EamilUtils;
-import com.hocztms.utils.RedisUtils;
 import com.hocztms.vo.PasswordEmail;
 import com.hocztms.vo.UpdateEmailVo;
-import com.hocztms.webSocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl implements UserService {

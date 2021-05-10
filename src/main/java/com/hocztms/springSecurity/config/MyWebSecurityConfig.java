@@ -80,6 +80,7 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated();
 
 
+
         //自定义未登录 无权限处理
         http.exceptionHandling()
                 .accessDeniedHandler(new MyAccessDeniedHandler())

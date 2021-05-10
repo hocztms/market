@@ -1,9 +1,11 @@
 package com.hocztms.springSecurity.jwt;
 
 import com.hocztms.common.RestResult;
+import com.hocztms.entity.Users;
 import com.hocztms.redis.RedisService;
 import com.hocztms.service.UserService;
 import com.hocztms.springSecurity.entity.MyUserDetails;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 
 @Service
+@Slf4j
 public class JwtAuthService  {
 
     @Autowired
@@ -53,12 +56,12 @@ public class JwtAuthService  {
         }
 
         if (authorities.contains("admin")){
-            System.out.println("管理员 "+ loginUser.getUsername() + " 已登录");
+            log.info("管理员 "+ loginUser.getUsername() + " 已登录");
             result.setCode(2);
         }
 
         else {
-            System.out.println("用户 "+ loginUser.getUsername() + " 已登录");
+            log.info("用户 "+ loginUser.getUsername() + " 已登录");
         }
 
         result.put("token",jwtTokenUtils.generateToken(loginUser));

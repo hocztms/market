@@ -37,5 +37,18 @@ public class RedisConfig{
         template.setValueSerializer(new StringRedisSerializer());
         return template;
     }
+
+    @Bean(name = "limitRedisTemplate")
+    public RedisTemplate<String, Long> limitRedisTemplate(RedisConnectionFactory factory){
+        RedisTemplate<String,Long>template=new RedisTemplate<>();
+        //关联
+        template.setConnectionFactory(factory);
+        //设置key的序列化器
+        template.setKeySerializer(new StringRedisSerializer());
+        //设置value的序列化器
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(Long.class));
+        return template;
+    }
+
 }
 

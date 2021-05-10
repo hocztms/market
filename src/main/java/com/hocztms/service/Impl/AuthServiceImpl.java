@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,8 @@ public class AuthServiceImpl implements AuthService {
     private UserService userService;
     @Autowired
     private EamilUtils eamilUtils;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
 
@@ -55,7 +58,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public RestResult authLogin(String username, String password) {
-        return jwtAuthService.login(username,password);
+        try {
+            Users users = userService.findUsersByUsername(username);
+            if (users==null){
+                return new RestResult(0,"用户不存在",null);
+            }
+
+            if (!passwordEncoder.matches(password,users.getPassword())){
+                redisService.setUserLoginLimit(username);
+                return new RestResult(0,"密码错误",null);
+            }
+
+            return jwtAuthService.login(username,password);
+        }catch (Exception e){
+            return new RestResult(0,e.getMessage(),null);
+        }
     }
 
 

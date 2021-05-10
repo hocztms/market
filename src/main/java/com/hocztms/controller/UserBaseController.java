@@ -2,6 +2,7 @@ package com.hocztms.controller;
 
 
 import com.hocztms.common.RestResult;
+import com.hocztms.redis.RedisService;
 import com.hocztms.service.AuthService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
 import com.hocztms.vo.AuthVo;
@@ -53,6 +54,9 @@ public class UserBaseController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private RedisService redisService;
+
     /*
     用户登录 (管理员和用户都包含 返回RestResult中 code = 1为用户 2为管理员 0为登录失败)
      */
@@ -63,9 +67,11 @@ public class UserBaseController {
         if (!codeUtils.checkKeyValueByKey(authVo.getUsername(),authVo.getCode())){
             return new RestResult(0,"验证码不正确",null);
         }
-        else {
-            return authService.authLogin(authVo.getUsername(),authVo.getPassword());
+        if (!redisService.checkUserLoginLimit(authVo.getUsername())){
+            return new RestResult(0,"登入失败过多 请15分钟后重试",null);
         }
+
+        return authService.authLogin(authVo.getUsername(),authVo.getPassword());
     }
 
     /*
