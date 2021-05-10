@@ -13,7 +13,6 @@ import java.util.Date;
 @Configuration
 public class RedisConfig{
 
-    int i;
     @Bean(name = "jwtRedisTemplate")
     public RedisTemplate<String, Date> jwtRedisTemplate(RedisConnectionFactory factory){
         RedisTemplate<String,Date>template=new RedisTemplate<>();
