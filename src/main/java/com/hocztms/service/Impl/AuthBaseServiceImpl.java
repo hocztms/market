@@ -1,6 +1,7 @@
 package com.hocztms.service.Impl;
 
 import com.hocztms.common.RestResult;
+import com.hocztms.redis.RedisService;
 import com.hocztms.service.AuthBaseService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
 import com.hocztms.springSecurity.jwt.JwtTokenUtils;
@@ -19,11 +20,12 @@ import java.util.concurrent.TimeUnit;
 public class AuthBaseServiceImpl implements AuthBaseService {
 
     @Autowired
-    private RedisTemplate<String, Date> jwtRedisTemplate;
+    private RedisService redisService;
     @Autowired
     private JwtAuthService jwtAuthService;
     @Autowired
     private WebSocketServer webSocketServer;
+
 
 
     @Override
@@ -31,8 +33,9 @@ public class AuthBaseServiceImpl implements AuthBaseService {
         try {
 
             String username = jwtAuthService.getTokenUsername(request);
-            jwtRedisTemplate.opsForValue().set(RedisUtils.jwtPrefix +username,new Date(),60, TimeUnit.MINUTES);
-            webSocketServer.close(username);
+
+            //主动失效 设置黑名单 并关闭已存在socket
+            redisService.userLogoutByServer(username);
             return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             return null;

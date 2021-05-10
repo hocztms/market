@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.*;
 import com.hocztms.mapper.*;
+import com.hocztms.redis.RedisService;
 import com.hocztms.service.*;
 import com.hocztms.utils.EamilUtils;
 import com.hocztms.utils.RedisUtils;
@@ -49,10 +50,8 @@ public class UserServiceImpl implements UserService {
     private RedisTemplate<String, String> codeRedisTemplate;
 
     @Autowired
-    private RedisTemplate<String, Date> jwtRedisTemplate;
+    private RedisService redisService;
 
-    @Autowired
-    private WebSocketServer webSocketServer;
 
 
 
@@ -81,9 +80,8 @@ public class UserServiceImpl implements UserService {
             codeRedisTemplate.delete("re&"+users.getUsername());
 
 
-            //主动失效 设置黑名单
-            jwtRedisTemplate.opsForValue().set(RedisUtils.jwtPrefix+users.getUsername(),new Date(),60, TimeUnit.MINUTES);
-            webSocketServer.close(users.getUsername());
+            //主动失效 设置黑名单 并关闭已存在socket
+            redisService.userLogoutByServer(users.getUsername());
             return new RestResult(1,"修改成功",null);
         }catch (Exception e){
             return new RestResult(0,e.getMessage(),null);

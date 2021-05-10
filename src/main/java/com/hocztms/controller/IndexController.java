@@ -1,5 +1,6 @@
 package com.hocztms.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hocztms.common.RestResult;
 import com.hocztms.service.IndexGoodsService;
 import com.hocztms.service.LabelService;
@@ -91,6 +92,12 @@ public class IndexController {
     @GetMapping("/getLabelByFid")
     public RestResult getLabel(long fid){
         return labelService.getGoodsAllLabelByFid(fid);
+    }
+
+    @ApiOperation("test")
+    @GetMapping(value = "/test")
+    public String test(){
+        return JSONObject.toJSONString(new RestResult(1,"操作成功",null));
     }
 
 }

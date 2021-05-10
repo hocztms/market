@@ -1,6 +1,7 @@
 package com.hocztms.springSecurity.jwt;
 
 import com.hocztms.common.RestResult;
+import com.hocztms.redis.RedisService;
 import com.hocztms.service.UserService;
 import com.hocztms.springSecurity.entity.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class JwtAuthService  {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RedisService redisService;
+
 
     public RestResult login(String username, String password) {
         Authentication authentication = null;
@@ -42,6 +46,12 @@ public class JwtAuthService  {
 
         //判断是否为管理员
         String authorities = String.valueOf(loginUser.getAuthorities());
+
+        //主动失效 设置黑名单 并关闭已存在socket
+        if (redisService.userLogoutByServer(username)==0){
+            return null;
+        }
+
         if (authorities.contains("admin")){
             System.out.println("管理员 "+ loginUser.getUsername() + " 已登录");
             result.setCode(2);
