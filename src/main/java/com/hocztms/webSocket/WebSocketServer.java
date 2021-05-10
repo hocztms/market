@@ -1,19 +1,14 @@
 package com.hocztms.webSocket;
 
-import com.hocztms.springSecurity.jwt.JwtAuthService;
 import com.hocztms.springSecurity.jwt.JwtTokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -91,15 +86,35 @@ public class WebSocketServer {
      */
     @OnClose
     public void onClose(@PathParam(value = "token") String token){
+        //token鉴权...
         String username = jwtTokenUtils.getUsernameFromToken(token);
-        sessionPools.remove(username);
-        subOnlineCount();
+
+        Session session = sessionPools.get(username);
+        if (session.isOpen()){
+            try {
+                onMessage(session,username + "连接已断开");
+                sessionPools.remove(username);
+                subOnlineCount();
+            }catch (Exception e){
+                log.warn(username+"登出错误.....");
+                e.printStackTrace();
+            }
+        }
         log.info(username + "断开webSocket连接！当前人数为" + online);
     }
 
-    public void close(String username){
-        sessionPools.remove(username);
-        subOnlineCount();
+    public void close(String username) throws IOException {
+        Session session = sessionPools.get(username);
+        if (session.isOpen()){
+           try {
+               onMessage(session,username + "连接已断开");
+               sessionPools.remove(username);
+               subOnlineCount();
+           }catch (Exception e){
+               log.warn(username+"登出错误.....");
+               e.printStackTrace();
+           }
+        }
         log.info(username + "断开webSocket连接！当前人数为" + online);
     }
 

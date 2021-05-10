@@ -20,6 +20,8 @@ public class WebSocketController {
     private UserMessageService userMessageService;
     @Autowired
     private JwtAuthService jwtAuthService;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
 
     @PostMapping(value = "/sendMsg")
@@ -27,6 +29,11 @@ public class WebSocketController {
         String username = jwtAuthService.getTokenUsername(request);
         System.out.println(username);
         userMessageService.sendUsersMessage(username,"二手交易市场",0,4);
+    }
+
+    @PostMapping(value = "/test")
+    public void testSocket1(HttpServletRequest request) {
+        webSocketServer.onClose(request.getHeader("token"));
     }
 
 }
