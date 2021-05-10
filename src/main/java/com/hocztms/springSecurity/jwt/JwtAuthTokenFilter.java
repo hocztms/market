@@ -34,7 +34,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter{
             String username = jwtAuthService.getTokenUsername(request);
             if (username != null && SecurityContextHolder.getContext().getAuthentication()==null) {
 
-                UserDetails userDetails = (MyUserDetails) userDetailServiceImpl.loadUserByUsername(username);
+                UserDetails userDetails = userDetailServiceImpl.loadUserByUsername(username);
 
                 //判断token是否有效 包括 新旧token 判断 基于 user表 lastLoginDate字段判断
                 if (jwtTokenUtils.validateToken(token, userDetails)) {

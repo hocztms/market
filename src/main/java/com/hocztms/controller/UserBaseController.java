@@ -2,13 +2,13 @@ package com.hocztms.controller;
 
 
 import com.hocztms.common.RestResult;
-import com.hocztms.service.AuthBaseService;
+import com.hocztms.service.AuthService;
+import com.hocztms.springSecurity.jwt.JwtAuthService;
 import com.hocztms.vo.AuthVo;
 import com.hocztms.vo.PasswordEmail;
 import com.hocztms.entity.Users;
 import com.hocztms.service.EmailService;
 import com.hocztms.service.UserService;
-import com.hocztms.springSecurity.jwt.JwtAuthService;
 import com.hocztms.utils.CodeUtils;
 import com.hocztms.vo.EmailVo;
 import com.hocztms.vo.UserPasswordVo;
@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Date;
 
 /*
 用户系统主要接口
@@ -40,7 +39,7 @@ public class UserBaseController {
 
 
     @Autowired
-    JwtAuthService jwtAuthService;
+    private JwtAuthService jwtAuthService;
 
     @Autowired
     private EmailService emailService;
@@ -52,7 +51,7 @@ public class UserBaseController {
     private CodeUtils codeUtils;
 
     @Autowired
-    private AuthBaseService authBaseService;
+    private AuthService authService;
 
     /*
     用户登录 (管理员和用户都包含 返回RestResult中 code = 1为用户 2为管理员 0为登录失败)
@@ -65,7 +64,7 @@ public class UserBaseController {
             return new RestResult(0,"验证码不正确",null);
         }
         else {
-            return jwtAuthService.login(authVo.getUsername(),authVo.getPassword());
+            return authService.authLogin(authVo.getUsername(),authVo.getPassword());
         }
     }
 
@@ -80,7 +79,7 @@ public class UserBaseController {
         if (!codeUtils.checkKeyValueByKey("register$"+userVo.getEmail(),userVo.getCode())){
             return new RestResult(0,"验证码不正确",null);
         }
-        return userService.userRegister(new Users(userVo.getUsername(),userVo.getPassword(),userVo.getEmail(),userVo.getPhone(),1));
+        return authService.authRegister(new Users(userVo.getUsername(),userVo.getPassword(),userVo.getEmail(),userVo.getPhone(),1));
     }
 
     /*
@@ -89,7 +88,7 @@ public class UserBaseController {
     @ApiOperation("用户注销,利用redis 设置黑名单")
     @PostMapping("/logout")
     public RestResult logout(HttpServletRequest request) {
-        return authBaseService.authLogout(request);
+        return authService.authLogout(request);
     }
 
     /*

@@ -1,25 +1,18 @@
 package com.hocztms.springSecurity.jwt;
 
-import com.hocztms.springSecurity.entity.MyUserDetails;
-import com.hocztms.utils.RedisUtils;
+import com.hocztms.redis.RedisService;
 import io.jsonwebtoken.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Data
 @Component
@@ -37,7 +30,7 @@ public class JwtTokenUtils {
     private static Key KEY = null;
 
     @Autowired
-    private RedisTemplate<String,Date> jwtRedisTemplate;
+    private RedisService redisService;
 
 
     //生成token
@@ -48,14 +41,13 @@ public class JwtTokenUtils {
         claims.put("created", new Date());
 
 
-        String token = generateToken(claims);
-        return token;
+        return generateToken(claims);
     }
 
 
    //解析token
     public String getUsernameFromToken(String token) {
-        String username = null;
+        String username;
         try {
 
 
@@ -107,19 +99,12 @@ public class JwtTokenUtils {
 
     //验证token
     public Boolean validateToken(String token, UserDetails userDetails) {
-        Date date = jwtRedisTemplate.opsForValue().get(RedisUtils.jwtPrefix+userDetails.getUsername());
-
-        Claims claims = getClaimsFromToken(token);
 
         String username = getUsernameFromToken(token);
-        Date jwtDate = getDateFromToken(token);
 
-        if (date!=null&&jwtDate.before(date)){
-            return false;
-        }
 
         return (username.equals(userDetails.getUsername()) &&
-                !isTokenExpired(token));
+                !isTokenExpired(token) && checkRedisBlack(token));
     }
 
     public Boolean checkRedisBlack(String token){
@@ -128,14 +113,11 @@ public class JwtTokenUtils {
             return false;
         }
 
-        Date date = jwtRedisTemplate.opsForValue().get(RedisUtils.jwtPrefix+username);
+        Date date = redisService.getUserBlackDate(username);
 
         Date jwtDate = getDateFromToken(token);
 
-        if (date!=null&&jwtDate.before(date)){
-            return false;
-        }
-        return true;
+        return date == null || !jwtDate.before(date);
     }
 
 
@@ -150,7 +132,7 @@ public class JwtTokenUtils {
 
     //解析token 获得claim
     private Claims getClaimsFromToken(String token) {
-        Claims claims =null;
+        Claims claims;
 
         try {
             claims = Jwts.parser().setSigningKey(getKeyInstance()).parseClaimsJws(token).getBody();

@@ -14,7 +14,7 @@ public interface UserService {
 
     public RestResult ReUserPasswordBySecret(PasswordEmail passwordEmail);
 
-    public RestResult userRegister(Users users);
+    public Integer insertUser(Users users);
 
     public RestResult updateUserEmailByEmailCode(String username, UpdateEmailVo updateEmailVo);
 

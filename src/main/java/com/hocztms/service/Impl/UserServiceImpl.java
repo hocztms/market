@@ -89,29 +89,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public RestResult userRegister(Users users) {
+    public Integer insertUser(Users users) {
         try {
-            Users usersByUsername = findUsersByUsername(users.getUsername());
-            List<Users> usersByEmail = findUsersByEmail(users.getEmail());
-            List<Users> usersByPhone = findUsersByPhone(users.getPhone());
             Role role = new Role(users.getUsername(),"user");
-            if (usersByUsername != null) {
-                return new RestResult(0, "用户名已存在", null);
-            }
-            if (!usersByEmail.isEmpty()) {
-                return new RestResult(0, "该邮箱已注册", null);
-            }
-
-            if (!usersByPhone.isEmpty()) {
-                return new RestResult(0, "该手机号已注册", null);
-            }
-            //发送注册成功邮件并且测试邮箱是否可用;
-            Email email = new Email(users.getUsername(),users.getEmail(),"通知","您的账号 " + users.getUsername()+" 注册成功",new Date(),null);
-            eamilUtils.sendEamil(email);
-
-
-            //创建 违法记录
-
             Illegal illegal = illegalUserService.findIllegalUserByUsername(users.getUsername());
             if (illegal!=null){
                 illegalUserService.deleteIllegalUserByUsername(users.getUsername());
@@ -123,10 +103,10 @@ public class UserServiceImpl implements UserService {
             usersMapper.insert(users);
             roleMapper.insert(role);
             illegalMapper.insert(new Illegal(users.getUsername(),0,1,1));
+            return 1;
         } catch (Exception e) {
-            return new RestResult(0, e.getMessage(), null);
+            return 0;
         }
-        return new RestResult(1, "注册成功", null);
     }
 
     @Override

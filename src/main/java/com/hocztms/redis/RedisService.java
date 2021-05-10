@@ -24,11 +24,16 @@ public class RedisService {
 
     public Integer userLogoutByServer(String username){
         try {
-            jwtRedisTemplate.opsForValue().set(RedisUtils.jwtPrefix +username,new Date(),60, TimeUnit.MINUTES);
+            jwtRedisTemplate.opsForValue().set(jwtPrefix +username,new Date(),60, TimeUnit.MINUTES);
+            System.out.println("ok");
             webSocketServer.close(username);
             return 1;
         }catch (Exception e){
             return 0;
         }
+    }
+
+    public Date getUserBlackDate(String username){
+        return jwtRedisTemplate.opsForValue().get(jwtPrefix+username);
     }
 }

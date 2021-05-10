@@ -1,7 +1,10 @@
 package com.hocztms.webSocket;
 
+import com.alibaba.fastjson.JSON;
 import com.hocztms.springSecurity.jwt.JwtTokenUtils;
+import com.hocztms.vo.SocketMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.websocket.WsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -92,7 +95,7 @@ public class WebSocketServer {
         Session session = sessionPools.get(username);
         if (session.isOpen()){
             try {
-                onMessage(session,username + "连接已断开");
+                onMessage(session, JSON.toJSONString(new SocketMessage(-1,username+"连接已断开")));
                 sessionPools.remove(username);
                 subOnlineCount();
             }catch (Exception e){
@@ -103,11 +106,12 @@ public class WebSocketServer {
         log.info(username + "断开webSocket连接！当前人数为" + online);
     }
 
-    public void close(String username) throws IOException {
+    public void close(String username) {
         Session session = sessionPools.get(username);
-        if (session.isOpen()){
+
+        if (session!=null&&session.isOpen()){
            try {
-               onMessage(session,username + "连接已断开");
+               onMessage(session, JSON.toJSONString(new SocketMessage(-1,username+"连接已断开")));
                sessionPools.remove(username);
                subOnlineCount();
            }catch (Exception e){
