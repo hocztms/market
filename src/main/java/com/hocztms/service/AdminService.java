@@ -5,13 +5,15 @@ import com.hocztms.entity.Label;
 
 public interface AdminService {
 
-    RestResult adminGetGoods(long page, long size, String orderBy, int model);
+    RestResult adminGetGoods(long page, long size);
 
     RestResult adminDeleteGoods(Long goodId);
 
     RestResult adminPassGoods(Long goodId);
 
     RestResult adminGetIllegalUser(long page, long size);
+
+    RestResult adminGetIllegalUserByUsername(String username);
 
     RestResult adminFreezeUser(String username);
 

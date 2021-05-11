@@ -51,7 +51,7 @@ public class UserOrderFormController {
     /*
     用户获取全部售卖订单信息
      */
-    @ApiOperation("用户获取全部购买订单信息")
+    @ApiOperation("用户获取全部售卖订单信息")
     @GetMapping("/getOrderFormBySeller")
     public RestResult getOrderFormBySeller(HttpServletRequest request){
         String username = jwtAuthService.getTokenUsername(request);

@@ -26,9 +26,11 @@ public interface OrderFormService {
 
     RestResult findUserOrderFormById(Long id, String username);
 
-    OrderForm initializeGoods(OrderFormVo orderFormVo, String username);
+    OrderForm initializeOrderForm(OrderFormVo orderFormVo, String username);
 
     OrderForm findOrderFormById(Long id);
+
+    OrderForm findOrderFormByGoodsId(Long id);
 
     Integer deleteOrderFormById(Long id, int model);
 

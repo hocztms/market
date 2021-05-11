@@ -2,27 +2,21 @@ package com.hocztms.service.Impl;
 
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.Email;
-import com.hocztms.entity.Illegal;
-import com.hocztms.entity.Role;
 import com.hocztms.entity.Users;
 import com.hocztms.redis.RedisService;
 import com.hocztms.service.AuthService;
 import com.hocztms.service.UserService;
-import com.hocztms.springSecurity.entity.MyUserDetails;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
-import com.hocztms.springSecurity.jwt.JwtTokenUtils;
 import com.hocztms.utils.EamilUtils;
 import com.hocztms.webSocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+
+
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -62,6 +56,10 @@ public class AuthServiceImpl implements AuthService {
             Users users = userService.findUsersByUsername(username);
             if (users==null){
                 return new RestResult(0,"用户不存在",null);
+            }
+
+            if(users.getStatus()==0){
+                return new RestResult(0,"账户已冻结",null);
             }
 
             if (!passwordEncoder.matches(password,users.getPassword())){

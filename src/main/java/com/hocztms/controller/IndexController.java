@@ -94,10 +94,4 @@ public class IndexController {
         return labelService.getGoodsAllLabelByFid(fid);
     }
 
-    @ApiOperation("test")
-    @GetMapping(value = "/test")
-    public String test(){
-        return JSONObject.toJSONString(new RestResult(1,"操作成功",null));
-    }
-
 }

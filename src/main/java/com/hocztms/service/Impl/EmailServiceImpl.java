@@ -80,21 +80,17 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendCheckGoodsEmail(Long goodsId, int tag) {
-        try {
-            Goods goods = goodsService.findGoodsByGoodsId(goodsId);
-            Users users = userService.findUsersByUsername(goods.getSeller());
-            String msg;
-            if (tag==1){
-                msg = "您的商品:  " + goods.getMsg() + "   商品ID:  " + goods.getId() + "  审核通过";
-            }
-            else {
-                msg = "您的商品:  " + goods.getMsg() + "   商品ID:  " + goods.getId() + "  审核不通过";
-            }
-            Email email = new Email(users.getUsername(),users.getEmail(),"通知", msg, new Date(), null);
-            eamilUtils.sendEamil(email);
-        }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
+        Goods goods = goodsService.findGoodsByGoodsId(goodsId);
+        Users users = userService.findUsersByUsername(goods.getSeller());
+        String msg;
+        if (tag==1){
+            msg = "您的商品:  " + goods.getMsg() + "   商品ID:  " + goods.getId() + "  审核通过";
         }
+        else {
+            msg = "您的商品:  " + goods.getMsg() + "   商品ID:  " + goods.getId() + "  审核不通过";
+        }
+        Email email = new Email(users.getUsername(),users.getEmail(),"通知", msg, new Date(), null);
+        eamilUtils.sendEamil(email);
     }
 
 

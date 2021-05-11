@@ -33,4 +33,5 @@ public interface UserService {
     public Integer updateUserStatusByUsername(String username,int status);
 
     String userContactToStringByUsername(String username);
+
 }

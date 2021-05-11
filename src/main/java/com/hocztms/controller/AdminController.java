@@ -49,18 +49,18 @@ public class AdminController {
      */
     @ApiOperation("管理员获取未审核商品")
     @GetMapping("/getGoods")
-    public RestResult getGoods(long page,long size,String orderBy,int model){
-        if (page==0||size==0||!goodsService.checkOrderBy(orderBy)){
-            return new RestResult(0,"数据传输错误",null);
+    public RestResult getGoods(long page,long size){
+        if (page==0||size==0){
+            return new RestResult(0,"数据非法",null);
         }
-        return adminService.adminGetGoods(page,size,orderBy,model);
+        return adminService.adminGetGoods(page,size);
     }
 
     /*
     假删除审核不通过商品
      */
     @ApiOperation("假删除审核不通过商品")
-    @PostMapping("/deleteGoods")
+    @DeleteMapping("/deleteGoods")
     public RestResult deleteGoods(@RequestBody Long goodsId){
         if (goodsId==null){
             return new RestResult   (0,"数据不能为空",null);
@@ -74,7 +74,7 @@ public class AdminController {
     审核通过商品
      */
     @ApiOperation("审核通过商品")
-    @PostMapping("/passGoods")
+    @PutMapping("/passGoods")
     public RestResult passGoods(@RequestBody Long goodsId){
         if (goodsId==null){
             return new RestResult(0,"数据不能为空",null);
@@ -97,10 +97,19 @@ public class AdminController {
     }
 
     /*
+    通过用户名获取用户非法记录
+     */
+    @ApiOperation("通过用户名获取用户非法记录")
+    @GetMapping("/findUserByUsername")
+    public RestResult adminFindIllegalUserByUsername(String username){
+        return adminService.adminGetIllegalUserByUsername(username);
+    }
+
+    /*
     冻结账户
      */
     @ApiOperation("冻结账户")
-    @PostMapping("/freezeUser")
+    @PutMapping("/freezeUser")
     public RestResult adminFreezeUser(@RequestBody String username){
         if (username==null){
             return new RestResult(0,"数据格式错误",null);
@@ -112,7 +121,7 @@ public class AdminController {
     解冻账户
      */
     @ApiOperation("解冻账户")
-    @PostMapping("/unFreezeUser")
+    @PutMapping("/unFreezeUser")
     public RestResult adminUnFreezeUser(@RequestBody String username){
         if (username==null){
             return new RestResult(0,"数据格式错误",null);
@@ -124,7 +133,7 @@ public class AdminController {
     管理员删除标签
      */
     @ApiOperation("管理员删除标签")
-    @PostMapping("/deleteLabel")
+    @DeleteMapping("/deleteLabel")
     public RestResult deleteLabel(@RequestBody long id){
 
         return adminService.adminDeleteLabelById(id);
@@ -144,8 +153,8 @@ public class AdminController {
     管理员创建标签
      */
     @ApiOperation("管理员创建标签")
-    @PostMapping("/creatLabel")
-    public RestResult creatLabel(@Valid @RequestBody Label label){
+    @PostMapping("/createLabel")
+    public RestResult createLabel(@Valid @RequestBody Label label){
         return adminService.adminInsertLabel(label);
     }
 
@@ -166,11 +175,10 @@ public class AdminController {
     管理员通过举报
      */
     @ApiOperation("管理员通过举报")
-    @PostMapping("/passReport")
+    @PutMapping("/passReport")
     public RestResult passReport(
-            Long id
+            @RequestBody Long id
     ){
-
         return reportService.adminPassReport(id);
     }
 
@@ -179,9 +187,9 @@ public class AdminController {
     管理员删除举报信息
      */
     @ApiOperation("管理员删除举报信息")
-    @PostMapping("/deleteReport")
+    @DeleteMapping("/deleteReport")
     public RestResult deleteReport(
-            List<Long> ids
+            @RequestBody List<Long> ids
     ){
         if (ids.isEmpty()){
             return new RestResult(0,"数据不能为空",null);

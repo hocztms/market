@@ -40,6 +40,8 @@ public interface GoodsService {
 
     List<Goods> findGoodsPage(long page, long size, String orderBy, int model);
 
+    List<Goods> findGoodsPageByAdmin(long page, long size);
+
     List<Goods> findGoodsPageByKeyword(long page, long size, String keyword, String orderBy, String model);
 
     Integer deleteGoodsById(Long id);

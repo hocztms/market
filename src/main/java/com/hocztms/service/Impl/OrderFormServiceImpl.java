@@ -45,7 +45,7 @@ public class OrderFormServiceImpl implements OrderFormService {
                 return new RestResult(0,"下单失败",null);
             }
 
-            OrderForm lastForm = initializeGoods(orderForm,username);
+            OrderForm lastForm = this.initializeOrderForm(orderForm,username);
             orderFormMapper.insert(lastForm);
 
             userMessageService.sendUsersMessage(lastForm.getUsername(),"您的商品下单成功 商家联系方式为  " + userService.userContactToStringByUsername(lastForm.getSeller()),1,lastForm.getId());
@@ -257,18 +257,25 @@ public class OrderFormServiceImpl implements OrderFormService {
     }
 
     @Override
-    public OrderForm initializeGoods(OrderFormVo orderFormVo,String username) {
+    public OrderForm initializeOrderForm(OrderFormVo orderFormVo,String username) {
         Goods good = goodsService.findGoodsByGoodsId(orderFormVo.getGoodsId());
         Users seller = userService.findUsersByUsername(good.getSeller());
         if (seller == null){
             throw new RuntimeException("出现了一点错误");
         }
-        return new OrderForm(0,username,orderFormVo.getGoodsId(),orderFormVo.getBuyer(),orderFormVo.getBuyerAddress(),orderFormVo.getBuyerAddress(),seller.getUsername(),seller.getPhone(),new Date(),0,orderFormVo.getWay(),0,0);
+        return new OrderForm(0,username,orderFormVo.getGoodsId(),orderFormVo.getBuyer(),orderFormVo.getBuyerAddress(),orderFormVo.getBuyerAddress(),seller.getUsername(),seller.getPhone(),new Date(),orderFormVo.getWay(),0,0,0);
     }
 
     @Override
     public OrderForm findOrderFormById(Long id) {
         return orderFormMapper.selectById(id);
+    }
+
+    @Override
+    public OrderForm findOrderFormByGoodsId(Long id) {
+        QueryWrapper <OrderForm> wrapper = new QueryWrapper<>();
+        wrapper.eq("goods_id",id);
+        return orderFormMapper.selectOne(wrapper);
     }
 
     @Override//model 0 为用户删除 1 为商家删除

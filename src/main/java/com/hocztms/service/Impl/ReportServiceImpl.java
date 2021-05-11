@@ -43,7 +43,7 @@ public class ReportServiceImpl implements ReportService {
             reportInfoMapper.insert(reportInfo);
 
             userMessageService.sendAdminReportMessage();
-            return new RestResult(0,"操作成功",null);
+            return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             return new RestResult(0,"操作失败",null);
         }
@@ -66,6 +66,11 @@ public class ReportServiceImpl implements ReportService {
     public RestResult adminPassReport(Long id) {
         try {
             ReportInfo reportInfo = reportInfoMapper.selectById(id);
+
+
+            if (reportInfo.getHandled()==1){
+                return new RestResult(0,"请勿重复操作",null);
+            }
             reportInfo.setHandled(1);
             reportInfoMapper.updateById(reportInfo);
             illegalUserService.updateIllegalUserNumByUsername(reportInfo.getIllegalPeople());
@@ -86,7 +91,11 @@ public class ReportServiceImpl implements ReportService {
                 ReportInfo reportInfo = reportInfoMapper.selectById(id);
                 reportInfoMapper.deleteById(id);
 
-                userMessageService.sendUsersMessage(reportInfo.getInformer(),"您举报的用户" + reportInfo.getIllegalPeople() + "失败 证据不充分",0,reportInfo.getId());
+                //处理不通过
+                if (reportInfo.getHandled()==0){
+                    userMessageService.sendUsersMessage(reportInfo.getInformer(),"您举报的用户" + reportInfo.getIllegalPeople() + "失败 证据不充分",0,reportInfo.getId());
+
+                }
             }
 
             return new RestResult(1,"操作成功",null);

@@ -42,6 +42,9 @@ public class GoodsServiceImpl implements GoodsService {
     @Autowired
     private UserMessageService userMessageService;
 
+    @Autowired
+    private OrderFormService orderFormService;
+
 
 
     @Override
@@ -97,22 +100,27 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public RestResult deleteUserGoodsByIds(List<Long> ids,String username) {
         try {
+            RestResult result = new RestResult(1,"成功",null);
             for (Long id:ids) {
                 Goods goods = findGoodsByGoodsId(id);
+                OrderForm orderForm = orderFormService.findOrderFormById(id);
+
                 if (goods == null){
-                    return new RestResult(0,"违法操作,商品不存在",null);
+                    result.put("error",id+"商品不存在");
                 }
-                if (!goods.getSeller().equals(username)) {
-                    return new RestResult(0, "违法操作,无权限", null);
+
+                else if (!goods.getSeller().equals(username)) {
+                    result.put("error",id+"违法操作,无权限");
+                }
+
+                else if (orderForm!=null&&orderForm.getTag()==0){
+                    result.put("error",id+"订单未完成");
+                }
+                else {
+                    deleteGoodsById(id);
                 }
             }
 
-            RestResult result = new RestResult(1,"成功",null);
-            for (Long id:ids) {
-                if (deleteGoodsById(id)==0){
-                    result.put("error",id + "删除失败");
-                }
-            }
             return result;
         }catch (Exception e){
             return new RestResult(0,"失败",null);
@@ -264,6 +272,15 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
+    public List<Goods> findGoodsPageByAdmin(long page, long size) {
+        QueryWrapper <Goods>wrapper = new QueryWrapper<>();
+        wrapper.eq("tag",0);
+        wrapper.orderByDesc("date");
+        IPage<Goods> goodsIPage = goodsMapper.selectPage(new Page<>(page, size), wrapper);
+        return goodsIPage.getRecords();
+    }
+
+    @Override
     public List<Goods> findGoodsPageByKeyword(long page, long size, String keyword, String orderBy, String model) {
         QueryWrapper <Goods>wrapper = new QueryWrapper<>();
         wrapper.like("msg","%" + keyword +"%");
@@ -312,6 +329,9 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             QueryWrapper<Goods> wrapper = new QueryWrapper<>();
             wrapper.eq("seller", username);
+
+
+            //未售出的商品全部冻结
             wrapper.eq("status", "1");
             List<Goods> goods = goodsMapper.selectList(wrapper);
             for (Goods good : goods) {

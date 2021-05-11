@@ -31,7 +31,7 @@ public class GoodsController {
     /*
     获取商品标签
      */
-    @ApiOperation("获取商品详细信息")
+    @ApiOperation("获取商品标签")
     @GetMapping("/getGoodsLabel")
     public RestResult getGoodsLabel(long goodsId){
         return goodsService.findGoodsLabelById(goodsId);

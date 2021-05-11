@@ -45,9 +45,9 @@ public class AdminServiceImpl implements AdminService {
     管理获取未审核商品 orderBy为排序基准 model 1为升序 2为降序
      */
     @Override
-    public RestResult adminGetGoods(long page, long size, String orderBy, int model) {
+    public RestResult adminGetGoods(long page, long size) {
         try{
-            List<Goods> goodsPage = goodsService.findGoodsPage(page, size, orderBy, model);
+            List<Goods> goodsPage = goodsService.findGoodsPageByAdmin(page, size);
 
             if (goodsPage.isEmpty()){
                 return new RestResult(1,"没有了",goodsPage);
@@ -76,9 +76,9 @@ public class AdminServiceImpl implements AdminService {
             if (users == null){
                 return new RestResult(0,"用户不存在",null);
             }
-            if (illegalUserService.updateIllegalUserNumByUsername(users.getUsername())==0){
-                return new RestResult(0,"操作失败",null);
-            }
+
+            //更新非法次数
+            illegalUserService.updateIllegalUserNumByUsername(users.getUsername());
 
             goodsService.updateGoodsTag(goodId,-1);
             emailService.sendCheckGoodsEmail(goodId,-1);
@@ -132,8 +132,27 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public RestResult adminGetIllegalUserByUsername(String username) {
+       try {
+           QueryWrapper<Illegal> wrapper = new QueryWrapper<>();
+           wrapper.eq("username",username);
+           Illegal illegal = illegalMapper.selectOne(wrapper);
+           if (illegal==null){
+               return new RestResult(0,"用户不存在",null);
+           }
+           return new RestResult(1,"操作成功",illegal);
+       }catch (Exception e){
+           return new RestResult(0,"操作失败",null);
+       }
+    }
+
+    @Override
     public RestResult adminFreezeUser(String username) {
         try {
+            Users users = userService.findUsersByUsername(username);
+            if(users.getStatus()==0){
+                return new RestResult(0,"请勿重新操作",null);
+            }
             if(userService.updateUserStatusByUsername(username,0)==0||
                     goodsService.adminFreezeUserGoods(username)==0){
                 return new RestResult(0,"操作失败",null);
@@ -149,6 +168,11 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public RestResult adminUnFreezeUser(String username) {
         try {
+            Users users = userService.findUsersByUsername(username);
+            if(users.getStatus()==1){
+                return new RestResult(0,"请勿重新操作",null);
+            }
+
             if (userService.updateUserStatusByUsername(username,1)==0||
                     goodsService.adminUnFreezeUserGoods(username)==0){
                 return new RestResult(0,"解除冻结失败",null);
@@ -164,6 +188,8 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public RestResult adminDeleteLabelById(Long id) {
         try {
+
+            //如果存在第二级标签 则删除 标签只有2级
             List<Label> labelByFid = labelService.findLabelByFid(id);
             if (!labelByFid.isEmpty()){
                 for (Label label:labelByFid){

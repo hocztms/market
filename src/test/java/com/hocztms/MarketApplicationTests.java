@@ -93,11 +93,5 @@ class MarketApplicationTests {
 
     @Autowired
     private WebSocketServer webSocketServer;
-    @Test
-    public void  Test(){
-
-        jwtRedisTemplate.delete(RedisUtils.jwtPrefix+"abc"
-        );
-    }
 }
 

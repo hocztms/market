@@ -75,6 +75,8 @@ public class TransactionConfiguration {
         source.addTransactionalMethod("admin*", txAttrRequired);
         source.addTransactionalMethod("set*", txAttrRequired);
         source.addTransactionalMethod("user*", txAttrRequired);
+        source.addTransactionalMethod("auth*", txAttrRequired);
+        source.addTransactionalMethod("send*", txAttrRequired);
 
         //设置只读事务
         source.addTransactionalMethod("get*", txAttrRequiredReadOnly);
