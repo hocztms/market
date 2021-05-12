@@ -68,7 +68,7 @@ public class UserAddressController {
     更新用户地址
      */
     @ApiOperation("更新用户地址")
-    @PostMapping("/updateAddress")
+    @PutMapping("/updateAddress")
     public RestResult updateAddress(@RequestBody Address address, HttpServletRequest request) {
         if (addressService.isEmpty(address)) {
             return new RestResult(0, "数据不能为空", null);

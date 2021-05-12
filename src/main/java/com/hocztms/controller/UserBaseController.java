@@ -114,7 +114,7 @@ public class UserBaseController {
     @PostMapping("/getPassword")
     public RestResult getPassword(
             @Valid @RequestBody UserPasswordVo users){
-        return emailService.sendPasswordEmail(users.getUsername(),users.getEmail());
+        return emailService.sendPasswordEmail(users.getEmail());
     }
 
     /*
@@ -122,7 +122,8 @@ public class UserBaseController {
      */
     @ApiOperation("用户根据密钥修改密码 传username,password,secret")
     @PostMapping("/rePassword")
-    public RestResult rePassword(@Valid @RequestBody PasswordEmail passwordEmail){
+    public RestResult rePassword(
+            @Valid @RequestBody PasswordEmail passwordEmail){
         return userService.ReUserPasswordBySecret(passwordEmail);
     }
 

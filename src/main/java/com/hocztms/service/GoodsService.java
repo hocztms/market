@@ -3,11 +3,8 @@ package com.hocztms.service;
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.Goods;
 import com.hocztms.entity.GoodsLabel;
-import com.hocztms.entity.Label;
-import com.hocztms.entity.OrderForm;
 import com.hocztms.vo.GoodsVo;
 import com.hocztms.vo.OrderBy;
-import com.hocztms.vo.OrderFormVo;
 
 import java.util.List;
 
@@ -22,6 +19,8 @@ public interface GoodsService {
     RestResult updateUserGoods(GoodsVo goodsVo, String username);
 
     RestResult findGoodsLabelById(Long GoodsId);
+
+    RestResult addGoodsLabelById(GoodsLabelVo goodsLabelVo, String username);
 
     RestResult deleteGoodsLabelById(Long id, String username);
 

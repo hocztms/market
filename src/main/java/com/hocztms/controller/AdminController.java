@@ -1,6 +1,7 @@
 package com.hocztms.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.Label;
 import com.hocztms.service.AdminService;
@@ -9,6 +10,7 @@ import com.hocztms.service.ReportService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -45,11 +47,14 @@ public class AdminController {
     }
 
     /*
-    管理员获取未审核商品
+    管理员获取未审核商品 已测试
      */
     @ApiOperation("管理员获取未审核商品")
     @GetMapping("/getGoods")
-    public RestResult getGoods(long page,long size){
+    public RestResult getGoods(
+            @ApiParam(value = "页数") long page,
+            @ApiParam(value = "每页大小") long size
+    ){
         if (page==0||size==0){
             return new RestResult(0,"数据非法",null);
         }
@@ -57,25 +62,28 @@ public class AdminController {
     }
 
     /*
-    假删除审核不通过商品
+    假删除审核不通过商品 已测试
      */
     @ApiOperation("假删除审核不通过商品")
     @DeleteMapping("/deleteGoods")
-    public RestResult deleteGoods(@RequestBody Long goodsId){
+    public RestResult deleteGoods(
+            @ApiParam(value = "JSON数据 格式 例如 1")@RequestBody Long goodsId){
         if (goodsId==null){
             return new RestResult   (0,"数据不能为空",null);
         }
         else {
+            System.out.println(goodsId);
             return adminService.adminDeleteGoods(goodsId);
         }
     }
 
     /*
-    审核通过商品
+    审核通过商品  已测试
      */
     @ApiOperation("审核通过商品")
     @PutMapping("/passGoods")
-    public RestResult passGoods(@RequestBody Long goodsId){
+    public RestResult passGoods(
+            @ApiParam(value = "JSON数据 格式 例如 1")@RequestBody Long goodsId){
         if (goodsId==null){
             return new RestResult(0,"数据不能为空",null);
         }
@@ -89,7 +97,9 @@ public class AdminController {
      */
     @ApiOperation("获取用户违法记录")
     @GetMapping("/getUsers")
-    public RestResult adminGetIllegalUser(long page,long size){
+    public RestResult adminGetIllegalUser(
+            @ApiParam(value = "页数") long page,
+            @ApiParam(value = "每页大小") long size){
         if (page==0||size==0){
             return new RestResult(0,"数据格式错误",null);
         }
@@ -106,11 +116,13 @@ public class AdminController {
     }
 
     /*
-    冻结账户
+    冻结账户 已经测试
      */
     @ApiOperation("冻结账户")
     @PutMapping("/freezeUser")
-    public RestResult adminFreezeUser(@RequestBody String username){
+    public RestResult adminFreezeUser(
+            @ApiParam(value = "格式 {\"username\":\"username\"}") @RequestBody String JsonUsername){
+        String username = JSONObject.parseObject(JsonUsername).getObject("username",String.class);
         if (username==null){
             return new RestResult(0,"数据格式错误",null);
         }
@@ -118,11 +130,14 @@ public class AdminController {
     }
 
     /*
-    解冻账户
+    解冻账户 已经测试
      */
     @ApiOperation("解冻账户")
     @PutMapping("/unFreezeUser")
-    public RestResult adminUnFreezeUser(@RequestBody String username){
+    public RestResult adminUnFreezeUser(
+            @ApiParam(value = "格式 {\"username\":\"username\"}") @RequestBody String JsonUsername
+    ){
+        String username = JSONObject.parseObject(JsonUsername).getObject("username",String.class);
         if (username==null){
             return new RestResult(0,"数据格式错误",null);
         }
@@ -130,17 +145,18 @@ public class AdminController {
     }
 
     /*
-    管理员删除标签
+    管理员删除标签  已测试
      */
     @ApiOperation("管理员删除标签")
     @DeleteMapping("/deleteLabel")
-    public RestResult deleteLabel(@RequestBody long id){
+    public RestResult deleteLabel(
+            @ApiParam(value = "JSON数据 格式 例如 1") @RequestBody Long id){
 
         return adminService.adminDeleteLabelById(id);
     }
 
     /*
-    管理员更新标签
+    管理员更新标签  已测试
      */
     @ApiOperation("管理员更新标签")
     @PutMapping("/updateLabel")
@@ -150,7 +166,7 @@ public class AdminController {
     }
 
     /*
-    管理员创建标签
+    管理员创建标签  已测试
      */
     @ApiOperation("管理员创建标签")
     @PostMapping("/createLabel")
@@ -159,37 +175,37 @@ public class AdminController {
     }
 
     /*
-    管理员获取举报信息
+    管理员获取举报信息  已测试
      */
     @ApiOperation("管理员获取举报信息")
     @GetMapping("/getReport")
     public RestResult getReport(
-            long page,
-            long size
+            @ApiParam(value = "页数") long page,
+            @ApiParam(value = "每页大小") long size
     ){
 
         return reportService.adminGetReportRecords(page,size);
     }
 
     /*
-    管理员通过举报
+    管理员通过举报  已测试
      */
     @ApiOperation("管理员通过举报")
     @PutMapping("/passReport")
     public RestResult passReport(
-            @RequestBody Long id
+            @ApiParam(value = "JSON数据 格式 例如 1") @RequestBody Long id
     ){
         return reportService.adminPassReport(id);
     }
 
 
     /*
-    管理员删除举报信息
+    管理员删除举报信息  已测试
      */
     @ApiOperation("管理员删除举报信息")
     @DeleteMapping("/deleteReport")
     public RestResult deleteReport(
-            @RequestBody List<Long> ids
+            @ApiParam(value = "商品id  传JSON 类似 [0,1,2,3....]") @RequestBody List<Long> ids
     ){
         if (ids.isEmpty()){
             return new RestResult(0,"数据不能为空",null);

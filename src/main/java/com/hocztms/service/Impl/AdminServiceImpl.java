@@ -4,15 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hocztms.common.RestResult;
-import com.hocztms.entity.Goods;
-import com.hocztms.entity.Illegal;
-import com.hocztms.entity.Label;
-import com.hocztms.entity.Users;
+import com.hocztms.entity.*;
 import com.hocztms.mapper.IllegalMapper;
 import com.hocztms.service.*;
+import com.hocztms.utils.EamilUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -38,6 +37,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private UserMessageService userMessageService;
+
+    @Autowired
+    private EamilUtils eamilUtils;
 
 
 
@@ -69,7 +71,7 @@ public class AdminServiceImpl implements AdminService {
                 return new RestResult(0,"商品不存在",null);
             }
 
-            if (goods.getTag()==-1){
+            if (goods.getTag()==-1||goods.getTag()==1){
                 return new RestResult(0,"请勿重复操作",null);
             }
 
@@ -98,7 +100,7 @@ public class AdminServiceImpl implements AdminService {
                 return new RestResult(0,"商品不存在",null);
             }
 
-            if (goods.getTag()==1){
+            if ((goods.getTag()==-1||goods.getTag()==1)){
                 return new RestResult(0,"请勿重复操作",null);
             }
 
@@ -158,7 +160,8 @@ public class AdminServiceImpl implements AdminService {
                 return new RestResult(0,"操作失败",null);
             }
 
-
+            Email email = new Email(users.getUsername(),users.getEmail(),"通知","您的账号已被冻结",new Date(),null);
+            eamilUtils.sendEmail(email);
             return new RestResult(1,"冻结成功",null);
         }catch (Exception e){
             return new RestResult(0,"失败",null);
@@ -178,7 +181,8 @@ public class AdminServiceImpl implements AdminService {
                 return new RestResult(0,"解除冻结失败",null);
             }
 
-
+            Email email = new Email(users.getUsername(),users.getEmail(),"通知","您的账号已被解除冻结",new Date(),null);
+            eamilUtils.sendEmail(email);
             return new RestResult(1,"解除冻结成功",null);
         }catch (Exception e){
             return new RestResult(0,"失败",null);

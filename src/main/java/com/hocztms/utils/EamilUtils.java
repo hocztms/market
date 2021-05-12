@@ -69,7 +69,7 @@ public class EamilUtils {
     /*
     发送一般通知文件
      */
-    public void sendEamil(Email email) {
+    public void sendEmail(Email email) {
         MimeMessagePreparator messagePreparator = message -> {
             message.setFrom(senderAdress);
             message.setRecipients(Message.RecipientType.TO, email.getAddress());

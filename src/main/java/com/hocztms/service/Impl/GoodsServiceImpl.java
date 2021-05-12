@@ -174,6 +174,13 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
+    public RestResult addGoodsLabelById(GoodsLabel goodsLabelVo, String username) {
+        try {
+            findGoodsByGoodsId(goodsLabelVo)
+        }
+    }
+
+    @Override
     public RestResult deleteGoodsLabelById(Long id, String username) {
         try {
             GoodsLabel label = goodsLabelMapper.selectById(id);
@@ -334,6 +341,10 @@ public class GoodsServiceImpl implements GoodsService {
             //未售出的商品全部冻结
             wrapper.eq("status", "1");
             List<Goods> goods = goodsMapper.selectList(wrapper);
+            if (goods.isEmpty()){
+                return 1;
+            }
+
             for (Goods good : goods) {
                 good.setStatus(-1);
                 goodsMapper.updateById(good);
@@ -351,6 +362,10 @@ public class GoodsServiceImpl implements GoodsService {
             wrapper.eq("seller", username);
             wrapper.eq("status", "-1");
             List<Goods> goods = goodsMapper.selectList(wrapper);
+            if (goods.isEmpty()){
+                return 1;
+            }
+
             for (Goods good : goods) {
                 good.setStatus(0);
                 goodsMapper.updateById(good);
@@ -389,8 +404,4 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public Goods initializeGoods(GoodsVo goodsVo, String username) {
-        return new Goods(0,goodsVo.getMsg(),goodsVo.getPrice(),username,goodsVo.getLevel(),new Date(),0,1,1);
-    }
-
-
-}
+        return new Goods(0,goodsVo.getMsg(),goodsVo.getPrice(),username,goodsVo.getLevel(),new Date(),0,1,

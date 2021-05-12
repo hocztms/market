@@ -20,9 +20,9 @@ public interface UserService {
 
     public RestResult updateUserPhoneByUsername(String username, String phone);
 
-    public List<Users> findUsersByEmail(String email);
+    public Users findUsersByEmail(String email);
 
-    public List<Users> findUsersByPhone(String phone);
+    public Users findUsersByPhone(String phone);
 
     public List<Role> getUserRoles (String username);
 

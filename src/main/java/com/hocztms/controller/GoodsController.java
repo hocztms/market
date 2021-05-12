@@ -20,7 +20,7 @@ public class GoodsController {
     private GoodsService goodsService;
 
     /*
-    获取商品详细信息
+    获取商品详细信息 已测试
      */
     @ApiOperation("获取商品详细信息")
     @GetMapping("/getDetails")
@@ -29,7 +29,7 @@ public class GoodsController {
     }
 
     /*
-    获取商品标签
+    获取商品标签 已测试
      */
     @ApiOperation("获取商品标签")
     @GetMapping("/getGoodsLabel")

@@ -56,7 +56,7 @@ public class UserCollectionController {
     用户删除商品收藏
      */
     @ApiOperation("用户删除商品收藏")
-    @GetMapping("/deleteCollection")
+    @DeleteMapping("/deleteCollection")
     public RestResult deleteCollection(
             @ApiParam(value = "收藏品ids  传格式类似[1,2,3,....]")@RequestBody List<Long> ids,
             HttpServletRequest request){

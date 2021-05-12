@@ -38,7 +38,7 @@ public class EmailServiceImpl implements EmailService {
     private CodeUtils codeUtils;
 
     @Resource
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, String> codeRedisTemplate;
 
 
 
@@ -47,31 +47,27 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public RestResult sendPasswordEmail(String username, String emailAddress) {
+    public RestResult sendPasswordEmail(String email) {
         try {
-            Users users = userService.findUsersByUsername(username);
+            Users users = userService.findUsersByEmail(email);
 
-            if (redisTemplate.opsForValue().get("re&"+username)!=null){
-                return new RestResult(0,"已发送,请勿重新获取",null);
-            }
             if (users==null){
                 return new RestResult(0,"账号不存在",null);
             }
 
-            if (!users.getEmail().equals(emailAddress)){
-                return new RestResult(0,"邮箱不正确",null);
+            if (codeRedisTemplate.opsForValue().get("re&"+users.getUsername())!=null){
+                return new RestResult(0,"已发送,请勿重新获取",null);
             }
-
 
             String secret = String.valueOf(UUID.randomUUID());
 
-            log.info(username + ":本次密钥为" + secret);
+            log.info(users.getUsername() + ":本次密钥为" + secret);
             Date date = new Date(new Date().getTime() + outTime);
-            Email email = new Email(username, emailAddress, "Get  Password", null, date, secret);
+            Email sendEmail = new Email(users.getUsername(), email, "Get  Password", null, date, secret);
 
-            redisTemplate.opsForValue().set("re&"+username,secret,10, TimeUnit.MINUTES);
+            codeRedisTemplate.opsForValue().set("re&"+users.getUsername(),secret,10, TimeUnit.MINUTES);
 
-            eamilUtils.sendGetPasswordEamil(email);
+            eamilUtils.sendGetPasswordEamil(sendEmail);
         }catch (Exception e){
             return new RestResult(0,e.getMessage(),null);
         }
@@ -90,7 +86,7 @@ public class EmailServiceImpl implements EmailService {
             msg = "您的商品:  " + goods.getMsg() + "   商品ID:  " + goods.getId() + "  审核不通过";
         }
         Email email = new Email(users.getUsername(),users.getEmail(),"通知", msg, new Date(), null);
-        eamilUtils.sendEamil(email);
+        eamilUtils.sendEmail(email);
     }
 
 
@@ -99,7 +95,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public RestResult sendRegisterEmailCode(String email, HttpSession httpSession) {
         try {
-            if (redisTemplate.opsForValue().get("register$"+email)!=null){
+            if (codeRedisTemplate.opsForValue().get("register$"+email)!=null){
                 return new RestResult(0,"请勿重复获取",null);
             }
 
@@ -107,9 +103,9 @@ public class EmailServiceImpl implements EmailService {
             String code = codeUtils.generateCode("register$"+email,1);
 
 
-            List<Users> users = userService.findUsersByEmail(email);
+            Users users = userService.findUsersByEmail(email);
 
-            if (!users.isEmpty()){
+            if (users!=null){
                 log.warn(email + "已经被注册.....");
                 return new RestResult(0,"邮箱已被注册",null);
             }
@@ -129,7 +125,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public RestResult getUpdateEmailCode(String username) {
         try {
-            if (redisTemplate.opsForValue().get("updateEmail:"+username)!=null){
+            if (codeRedisTemplate.opsForValue().get("updateEmail:"+username)!=null){
                 return new RestResult(0,"请勿重复获取",null);
             }
 
@@ -137,7 +133,7 @@ public class EmailServiceImpl implements EmailService {
             Users user = userService.findUsersByUsername(username);
 
             Email email  = new Email(username,user.getEmail(),"updateEmail","您本次修改邮箱验证码为" + code + "5分钟有效",new Date(),code);
-            eamilUtils.sendEamil(email);
+            eamilUtils.sendEmail(email);
 
             return new RestResult(1,"操作成功",null);
         }catch (Exception e){

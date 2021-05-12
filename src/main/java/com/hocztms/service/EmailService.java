@@ -1,13 +1,11 @@
 package com.hocztms.service;
 
 import com.hocztms.common.RestResult;
-import com.hocztms.entity.Email;
-import com.hocztms.vo.UserVo;
 
 import javax.servlet.http.HttpSession;
 
 public interface EmailService {
-    RestResult sendPasswordEmail(String username, String emailAddress);
+    RestResult sendPasswordEmail(String email);
 
     void sendCheckGoodsEmail(Long goodsId, int tag);
 

@@ -78,22 +78,22 @@ public class AuthServiceImpl implements AuthService {
     public RestResult authRegister(Users users) {
         try {
             Users usersByUsername = userService.findUsersByUsername(users.getUsername());
-            List<Users> usersByEmail = userService.findUsersByEmail(users.getEmail());
-            List<Users> usersByPhone = userService.findUsersByPhone(users.getPhone());
+            Users usersByEmail = userService.findUsersByEmail(users.getEmail());
+            Users usersByPhone = userService.findUsersByPhone(users.getPhone());
             if (usersByUsername != null) {
                 return new RestResult(0, "用户名已存在", null);
             }
-            if (!usersByEmail.isEmpty()) {
+            if (usersByEmail!=null) {
                 return new RestResult(0, "该邮箱已注册", null);
             }
 
-            if (!usersByPhone.isEmpty()) {
+            if (usersByPhone!=null) {
                 return new RestResult(0, "该手机号已注册", null);
             }
 
             //发送注册成功邮件
             Email email = new Email(users.getUsername(),users.getEmail(),"通知","您的账号 " + users.getUsername()+" 注册成功",new Date(),null);
-            eamilUtils.sendEamil(email);
+            eamilUtils.sendEmail(email);
 
 
             userService.insertUser(users);

@@ -112,6 +112,21 @@ public class UserGoodsController {
     }
 
     /*
+   添加用户商品标签
+    */
+    @ApiOperation("添加用户商品标签")
+    @DeleteMapping("/addGoodsLabel")
+    public RestResult addGoodsLabel(
+            @ApiParam(value = "商品id  传JSON 类似 [0,1,2,3....]") @RequestBody List<Long> ids,
+            HttpServletRequest request){
+        if (ids.isEmpty()){
+            return new RestResult(0,"数据不能为空",null);
+        }
+        String username = jwtAuthService.getTokenUsername(request);
+        return goodsService.createGoodsLabel(ids,username);
+    }
+
+    /*
     更新商品信息
      */
     @ApiOperation("更新商品信息")
@@ -127,7 +142,7 @@ public class UserGoodsController {
     删除商品图片
      */
     @ApiOperation("删除商品图片")
-    @PutMapping("/deleteGoodsPictures")
+    @DeleteMapping("/deleteGoodsPictures")
     public RestResult updateGoods(
             @ApiParam(value = "商品图片id  传JSON 类似 [0,1,2,3....]") @RequestBody List<Long> ids,
             HttpServletRequest request){

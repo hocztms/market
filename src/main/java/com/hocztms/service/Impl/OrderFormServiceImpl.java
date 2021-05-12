@@ -37,8 +37,13 @@ public class OrderFormServiceImpl implements OrderFormService {
     @Override
     public RestResult userOrderGoods(OrderFormVo orderForm, String username) {
         try {
-            if (goodsService.findGoodsByGoodsId(orderForm.getGoodsId()).getSeller().equals(username)){
+            Goods goods = goodsService.findGoodsByGoodsId(orderForm.getGoodsId());
+            if (goods.getSeller().equals(username)){
                 return new RestResult(0,"不允许刷单",null);
+            }
+
+            if (goods.getTag()!=1){
+                return new RestResult(0,"商品异常",null);
             }
 
             if (goodsService.updateOptimisticLockGoods(orderForm.getGoodsId())==0){
@@ -226,6 +231,13 @@ public class OrderFormServiceImpl implements OrderFormService {
 
             if (!orderForm.getUsername().equals(username)){
                 return new RestResult(0,"无权限",null);
+            }
+            if (orderForm.getTag()==1){
+                return new RestResult(0,"请勿重新操作",null);
+            }
+
+            if (orderForm.getTag()==-1){
+                return new RestResult(0,"当前状态不能取消",null);
             }
 
             orderForm.setTag(1);

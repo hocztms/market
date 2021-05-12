@@ -93,5 +93,12 @@ class MarketApplicationTests {
 
     @Autowired
     private WebSocketServer webSocketServer;
+
+    @Test
+    public void test(){
+        Users users = userService.findUsersByUsername("test");
+        boolean matches = passwordEncoder.matches("a1598753A", users.getPassword());
+        System.out.println(matches);
+    }
 }
 

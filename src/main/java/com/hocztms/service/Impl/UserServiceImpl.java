@@ -54,7 +54,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public RestResult ReUserPasswordBySecret(PasswordEmail passwordEmail) {
         try{
-
             String keyValue = codeRedisTemplate.opsForValue().get("re&" + passwordEmail.getUsername());
 
             if (keyValue==null){
@@ -142,18 +141,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Users> findUsersByEmail(String email) {
+    public Users findUsersByEmail(String email) {
         QueryWrapper<Users> wrapper = new QueryWrapper<>();
         wrapper.eq("email",email);
-        return usersMapper.selectList(wrapper);
+        return usersMapper.selectOne(wrapper);
 
     }
 
     @Override
-    public List<Users> findUsersByPhone(String phone) {
+    public Users findUsersByPhone(String phone) {
         QueryWrapper<Users> wrapper = new QueryWrapper<>();
         wrapper.eq("phone",phone);
-        return usersMapper.selectList(wrapper);
+        return usersMapper.selectOne(wrapper);
     }
 
     @Override
@@ -182,9 +181,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Integer updateUserStatusByUsername(String username,int status) {
-        if (illegalUserService.updateIllegalUserStatusByUsername(username,status)==0) {
-            return 0;
-        }
         QueryWrapper <Users> wrapper = new QueryWrapper<>();
         wrapper.eq("username",username);
         Users usersByUsername = findUsersByUsername(username);
