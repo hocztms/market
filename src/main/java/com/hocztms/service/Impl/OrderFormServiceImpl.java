@@ -38,19 +38,16 @@ public class OrderFormServiceImpl implements OrderFormService {
     public RestResult userOrderGoods(OrderFormVo orderForm, String username) {
         try {
             Goods goods = goodsService.findGoodsByGoodsId(orderForm.getGoodsId());
-            if (goods==null||goods.getStatus()!=1){
-                return new RestResult(0,"商品售空!",null);
+            if (goods==null||goods.getStatus()!=1||goods.getTag()!=1){
+                return new RestResult(0,"商品当前状态不可购买!",null);
             }
+
             if (goods.getSeller().equals(username)){
                 return new RestResult(0,"不允许刷单",null);
             }
 
-            if (goods.getTag()!=1){
-                return new RestResult(0,"商品异常",null);
-            }
-
             if (goodsService.updateOptimisticLockGoods(orderForm.getGoodsId())==0){
-                return new RestResult(0,"下单失败",null);
+                return new RestResult(0,"下单失败,商品已售出",null);
             }
 
             OrderForm lastForm = this.initializeOrderForm(orderForm,username);
@@ -94,27 +91,28 @@ public class OrderFormServiceImpl implements OrderFormService {
     @Override
     public RestResult deleteBuyerOrderForm(List<Long> ids,String username) {
         try {
-            for (Long id:ids){
-                 OrderForm orderForm = findOrderFormById(id);
-                if (orderForm==null){
-                    return new RestResult(0,id+"  订单不存在 非法操作",null);
-                }
-                if (!orderForm.getUsername().equals(username)){
-                    return new RestResult(0,id+"  无权限 非法操作",null);
-                }
-                if (orderForm.getTag()!=1){
-                    return new RestResult(0,id + "订单未完成，不能删除",null);
-                }
-            }
 
             RestResult result = new RestResult(1,"成功",null);
 
+
             for (Long id:ids){
-                if (deleteOrderFormById(id,0)==0){
-                    result.put("error",id + "删除失败");
+                 OrderForm orderForm = findOrderFormById(id);
+                if (orderForm==null){
+                    result.put("error",id+"  订单不存在 非法操作");
+                }
+                else if (!orderForm.getUsername().equals(username)){
+                    result.put("error",id+"  无权限 非法操作");
+                }
+                else if (orderForm.getTag()!=1){
+                    result.put("error",id+"  订单当前状态不可删除 非法操作");
+                }
+                else {
+                    //model 来方便判别 username 还是 seller
+                    if (deleteOrderFormById(id,0)==0){
+                        result.put("error",id + "删除失败");
+                    }
                 }
             }
-
             return result;
 
         }catch (Exception e){
@@ -125,24 +123,25 @@ public class OrderFormServiceImpl implements OrderFormService {
     @Override
     public RestResult deleteSellerOrderForm(List<Long> ids, String username) {
         try {
+            RestResult result = new RestResult(1,"成功",null);
+
+
             for (Long id:ids){
                 OrderForm orderForm = findOrderFormById(id);
                 if (orderForm==null){
-                    return new RestResult(0,id+"  订单不存在 非法操作",null);
+                    result.put("error",id+"  订单不存在 非法操作");
                 }
-                if (!orderForm.getSeller().equals(username)){
-                    return new RestResult(0,id+"  无权限 非法操作",null);
+                else if (!orderForm.getSeller().equals(username)){
+                    result.put("error",id+"  无权限 非法操作");
                 }
-                if (orderForm.getTag()!=1){
-                    return new RestResult(0,id + "订单未完成，不能删除",null);
+                else if (orderForm.getTag()!=1){
+                    result.put("error",id+"  订单当前状态不可删除 非法操作");
                 }
-            }
-
-            RestResult result = new RestResult(1,"成功",null);
-
-            for (Long id:ids){
-                if (deleteOrderFormById(id,1)==0){
-                    result.put("error",id + "删除失败");
+                else {
+                    //model 来方便判别 username 还是 seller
+                    if (deleteOrderFormById(id,0)==0){
+                        result.put("error",id + "删除失败");
+                    }
                 }
             }
 
@@ -160,8 +159,13 @@ public class OrderFormServiceImpl implements OrderFormService {
             if (!order.getSeller().equals(username)){
                 return new RestResult(0,"无权限",null);
             }
+
             if (order.getTag()==1){
                 return new RestResult(0,"订单已完成,非法操作",null);
+            }
+
+            if (order.getTag()==-1){
+                return new RestResult(0,"请勿重复提交",null);
             }
 
             OrderFormCancelRecords records = recordsService.findRecordsByOrderFormId(order.getId());
@@ -198,6 +202,14 @@ public class OrderFormServiceImpl implements OrderFormService {
             OrderForm order = findOrderFormById(id);
             if (!order.getUsername().equals(username)){
                 return new RestResult(0,"无权限",null);
+            }
+
+            if (order.getTag()==1){
+                return new RestResult(0,"订单已完成,非法操作",null);
+            }
+
+            if (order.getTag()==-1){
+                return new RestResult(0,"请勿重复提交",null);
             }
 
             OrderFormCancelRecords records = recordsService.findRecordsByOrderFormId(order.getId());
