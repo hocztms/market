@@ -28,6 +28,10 @@ public interface UserService {
 
     public RestResult getUserGoods(String username);
 
+    public RestResult getUserNormalGoods(long page,long size,String username);
+
+    public RestResult getUserIllegalGoods(long page, long size, String username);
+
     public Integer updateUser(Users users);
 
     public Integer updateUserStatusByUsername(String username,int status);

@@ -98,17 +98,32 @@ public class UserGoodsController {
     }
 
     /*
-    获取商品 与前端商量由前端 来分页并且根据status tag 进行变色变暗
+    获取商品用户除了审核不通过外的商品
      */
-    @ApiOperation("获取用户商品")
+    @ApiOperation("获取商品用户除了审核不通过外的商品")
     @GetMapping("/getUserNormalGoods")
     public RestResult getUserNormalGoods(
             @ApiParam(value = "页数") long page,
             @ApiParam(value = "大小") long size,
             HttpServletRequest request){
         String username = jwtAuthService.getTokenUsername(request);
-        log.info(username + "getUserGoods....");
-        return userService.getUserGoods(username);
+        log.info(username + "getUserNormalGoods....");
+        return userService.getUserNormalGoods(page,size,username);
+    }
+
+
+    /*
+    获取审核不通过商品
+     */
+    @ApiOperation("获取审核不通过商品")
+    @GetMapping("/getUserIllegalGoods")
+    public RestResult getUserIllegalGoods(
+            @ApiParam(value = "页数") long page,
+            @ApiParam(value = "大小") long size,
+            HttpServletRequest request){
+        String username = jwtAuthService.getTokenUsername(request);
+        log.info(username + "getUserIllegalGoods....");
+        return userService.getUserIllegalGoods(page,size,username);
     }
 
     /*
@@ -139,9 +154,9 @@ public class UserGoodsController {
     }
 
     /*
-    更新商品信息
+    更新商品信息 接口完全可以服用 在不同状态的商品 未下单可改 下单的不可改 未审核 审核 审核不通过 更改后都会标为未审核状态
      */
-    @ApiOperation("更新商品信息")
+    @ApiOperation("更新商品信息 接口完全可以服用 在不同状态的商品 未下单可改 下单的不可改 未审核 审核 审核不通过 更改后都会标为未审核状态\n")
     @PutMapping("/updateGoods")
     public RestResult updateGoods(
             @Valid @RequestBody GoodsVo goodsVo,

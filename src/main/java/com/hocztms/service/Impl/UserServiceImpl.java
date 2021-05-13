@@ -173,6 +173,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public RestResult getUserNormalGoods(long page, long size, String username) {
+        try {
+            if (findUsersByUsername(username)==null){
+                return new RestResult(0,"用户不存在",null);
+            }
+            List<Goods> goods = goodsService.findUserNormalGoodsByUsername(page, size, username);
+            if (goods.isEmpty()){
+                return new RestResult(1,"没有了",goods);
+            }
+            return new RestResult(1,"操作成功",goods);
+        }catch (Exception e){
+            return new RestResult(0,"操作失败",null);
+        }
+    }
+
+    @Override
+    public RestResult getUserIllegalGoods(long page, long size, String username) {
+        try {
+            if (findUsersByUsername(username)==null){
+                return new RestResult(0,"用户不存在",null);
+            }
+            List<Goods> goods = goodsService.findUserIllegalGoodsByUsername(page, size, username);
+            if (goods.isEmpty()){
+                return new RestResult(1,"没有了",goods);
+            }
+            return new RestResult(1,"操作成功",goods);
+        }catch (Exception e){
+            return new RestResult(0,"操作失败",null);
+        }
+    }
+
+    @Override
     public Integer updateUser(Users users) {
         QueryWrapper<Users> wrapper = new QueryWrapper<>();
         wrapper.eq("username",users.getUsername());

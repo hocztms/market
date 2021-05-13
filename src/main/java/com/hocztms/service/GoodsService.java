@@ -1,5 +1,6 @@
 package com.hocztms.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.Goods;
 import com.hocztms.entity.GoodsLabel;
@@ -52,6 +53,10 @@ public interface GoodsService {
     Integer adminFreezeUserGoods(String username);
 
     Integer adminUnFreezeUserGoods(String username);
+
+    List<Goods> findUserNormalGoodsByUsername(long page,long size,String username);
+
+    List<Goods> findUserIllegalGoodsByUsername(long page, long size, String username);
 
     OrderBy setOrderByByMode(int mode);
 

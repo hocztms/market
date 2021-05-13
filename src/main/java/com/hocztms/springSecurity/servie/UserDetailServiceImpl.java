@@ -35,6 +35,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
         if (usersByUsername==null){
             throw new RuntimeException("用户不存在");
         }
+
+        //保证冻结账户不能操作
         if (usersByUsername.getStatus()==0){
             throw new RuntimeException("账户已冻结");
         }

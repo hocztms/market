@@ -406,6 +406,25 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
+    public List<Goods> findUserNormalGoodsByUsername(long page, long size, String username) {
+        QueryWrapper<Goods> wrapper = new QueryWrapper<>();
+        wrapper.ne("tag",-1);
+        wrapper.eq("seller",username);
+        wrapper.orderByDesc("tag");
+        wrapper.orderByDesc("date");
+        return goodsMapper.selectPage(new Page<>(page,size),wrapper).getRecords();
+    }
+
+    @Override
+    public List<Goods> findUserIllegalGoodsByUsername(long page, long size, String username) {
+        QueryWrapper<Goods> wrapper = new QueryWrapper<>();
+        wrapper.eq("tag",-1);
+        wrapper.eq("seller",username);
+        wrapper.orderByDesc("date");
+        return goodsMapper.selectPage(new Page<>(page,size),wrapper).getRecords();
+    }
+
+    @Override
     public OrderBy setOrderByByMode(int mode) {
         OrderBy orderBy = new OrderBy();
         switch (mode) {
