@@ -13,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -61,22 +63,28 @@ public class UserCollectionServiceImpl implements UserCollectionService {
     @Override
     public RestResult deleteUserCollectionByIds(List<Long> ids, String username) {
         try {
-            RestResult result = new RestResult(1,"操作成功",null);
+            Map<Integer,String> errors = new HashMap<>();
+            int i=1;
 
             for (Long id:ids){
                 if (collectionMapper.selectById(id)==null){
-                    result.put("error",id + "不存在...");
+                    errors.put(i++,id + "不存在...");
                     log.warn(username + "正在执行非法操作.....");
                 }
                 else if (!collectionMapper.selectById(id).getUsername().equals(username)){
-                    result.put("error",id + "无权限...");
+                    errors.put(i++,id + "无权限...");
                     log.warn(username + "正在执行非法操作.....");
                 }
                 else {
                     collectionMapper.deleteById(id);
                 }
             }
-            return result;
+            if(!errors.isEmpty()){
+                RestResult result = new RestResult(1,"部分失败",null);
+                result.put("errors",errors);
+                return result;
+            }
+            return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             return new RestResult(0,"操作失败",null);
         }

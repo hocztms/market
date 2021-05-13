@@ -13,9 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+
+import java.util.*;
 
 @Service
 @Slf4j
@@ -96,11 +95,15 @@ public class PictureServiceImpl implements PictureService {
     @Override
     public RestResult deleteGoodsPictureByIds(List<Long> ids, String username) {
         try {
-            RestResult result = new RestResult(1,"操作成功",null);
+            Map<Integer,String> errors = new HashMap<>();
+            int i=1;
             for (Long id:ids){
                 Picture picture = pictureMapper.selectById(id);
+                if (picture==null){
+                    errors.put(i++,id + " 不存在");
+                }
                 if (!picture.getUsername().equals(username)){
-                    result.put("error",id + "无权限删除...");
+                    errors.put(i++,id + "无权限删除...");
                     log.warn(username + "正在执行违法操作....");
                 }
                 else {
@@ -108,7 +111,13 @@ public class PictureServiceImpl implements PictureService {
                     pictureMapper.deleteById(picture.getId());
                 }
             }
-            return result;
+
+            if(!errors.isEmpty()){
+                RestResult result = new RestResult(1,"部分失败",null);
+                result.put("errors",errors);
+                return result;
+            }
+            return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             log.warn(e.getMessage());
             return new RestResult(0,"操作失败",null);

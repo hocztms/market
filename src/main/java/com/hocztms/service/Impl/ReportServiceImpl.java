@@ -93,12 +93,14 @@ public class ReportServiceImpl implements ReportService {
         try {
             for (Long id:ids){
                 ReportInfo reportInfo = reportInfoMapper.selectById(id);
-                reportInfoMapper.deleteById(id);
+                if (reportInfo!=null) {
+                    reportInfoMapper.deleteById(id);
 
-                //处理不通过
-                if (reportInfo.getHandled()==0){
-                    userMessageService.sendUsersMessage(reportInfo.getInformer(),"您举报的用户" + reportInfo.getIllegalPeople() + "失败 证据不充分",0,reportInfo.getId());
+                    //未处理 直接删掉 就是不通过
+                    if (reportInfo.getHandled() == 0) {
+                        userMessageService.sendUsersMessage(reportInfo.getInformer(), "您举报的用户" + reportInfo.getIllegalPeople() + "失败 证据不充分", 0, reportInfo.getId());
 
+                    }
                 }
             }
 

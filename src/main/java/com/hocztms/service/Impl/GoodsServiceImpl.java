@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GoodsServiceImpl implements GoodsService {
@@ -102,23 +104,30 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public RestResult deleteUserGoodsByIds(List<Long> ids, String username) {
         try {
-            RestResult result = new RestResult(1, "成功", null);
+            Map<Integer,String> errors = new HashMap<>();
+            int i=1;
+
             for (Long id : ids) {
                 Goods goods = findGoodsByGoodsId(id);
                 OrderForm orderForm = orderFormService.findOrderFormById(id);
 
                 if (goods == null) {
-                    result.put("error", id + "商品不存在");
+                    errors.put(i++, id + " 商品不存在");
                 } else if (!goods.getSeller().equals(username)) {
-                    result.put("error", id + "违法操作,无权限");
+                    errors.put(i++, id + " 违法操作,无权限");
                 } else if (orderForm != null && orderForm.getTag() == 0) {
-                    result.put("error", id + "订单未完成");
+                    errors.put(i++, id + " 订单未完成");
                 } else {
                     deleteGoodsById(id);
                 }
             }
 
-            return result;
+            if(!errors.isEmpty()){
+                RestResult result = new RestResult(1,"部分失败",null);
+                result.put("errors",errors);
+                return result;
+            }
+            return new RestResult(1,"操作成功",null);
         } catch (Exception e) {
             return new RestResult(0, "失败", null);
         }

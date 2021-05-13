@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderFormServiceImpl implements OrderFormService {
@@ -92,29 +94,34 @@ public class OrderFormServiceImpl implements OrderFormService {
     public RestResult deleteBuyerOrderForm(List<Long> ids,String username) {
         try {
 
-            RestResult result = new RestResult(1,"成功",null);
-
+            Map<Integer,String> errors = new HashMap<>();
+            int i=1;
 
             for (Long id:ids){
                  OrderForm orderForm = findOrderFormById(id);
                 if (orderForm==null){
-                    result.put("error",id+"  订单不存在 非法操作");
+                    errors.put(i++," id:"+id+" 订单不存在 非法操作");
                 }
                 else if (!orderForm.getUsername().equals(username)){
-                    result.put("error",id+"  无权限 非法操作");
+                    errors.put(i++," id:"+id+" 无权限");
                 }
                 else if (orderForm.getTag()!=1){
-                    result.put("error",id+"  订单当前状态不可删除 非法操作");
+                    errors.put(i++," id:"+id+" 当前状态不可取消");
                 }
                 else {
                     //model 来方便判别 username 还是 seller
                     if (deleteOrderFormById(id,0)==0){
-                        result.put("error",id + "删除失败");
+                        errors.put(i++," id:"+id+" 删除失败");
+                    }
                     }
                 }
-            }
-            return result;
 
+            if(!errors.isEmpty()){
+                RestResult result = new RestResult(1,"部分失败",null);
+                result.put("errors",errors);
+                return result;
+            }
+            return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             return new RestResult(0,"失败",null);
         }
@@ -123,30 +130,34 @@ public class OrderFormServiceImpl implements OrderFormService {
     @Override
     public RestResult deleteSellerOrderForm(List<Long> ids, String username) {
         try {
-            RestResult result = new RestResult(1,"成功",null);
-
+            Map<Integer,String> errors = new HashMap<>();
+            int i=1;
 
             for (Long id:ids){
                 OrderForm orderForm = findOrderFormById(id);
                 if (orderForm==null){
-                    result.put("error",id+"  订单不存在 非法操作");
+                    errors.put(i++," id:"+id+" 订单不存在 非法操作");
                 }
                 else if (!orderForm.getSeller().equals(username)){
-                    result.put("error",id+"  无权限 非法操作");
+                    errors.put(i++," id:"+id+" 无权限");
                 }
                 else if (orderForm.getTag()!=1){
-                    result.put("error",id+"  订单当前状态不可删除 非法操作");
+                    errors.put(i++," id:"+id+" 当前状态不可取消");
                 }
                 else {
                     //model 来方便判别 username 还是 seller
-                    if (deleteOrderFormById(id,0)==0){
-                        result.put("error",id + "删除失败");
+                    if (deleteOrderFormById(id,1)==0){
+                        errors.put(i++," id:"+id+" 删除失败");
+                    }
                     }
                 }
+
+            if(!errors.isEmpty()){
+                RestResult result = new RestResult(1,"部分失败",null);
+                result.put("errors",errors);
+                return result;
             }
-
-            return result;
-
+            return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             return new RestResult(0,"失败",null);
         }

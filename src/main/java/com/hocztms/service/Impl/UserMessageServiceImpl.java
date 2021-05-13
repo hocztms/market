@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.awt.geom.QuadCurve2D;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -30,17 +32,28 @@ public class UserMessageServiceImpl implements UserMessageService {
     @Override
     public RestResult deleteUserMessageByIds(List<Long> ids, String username) {
         try {
-            RestResult result = new RestResult(1,"操作成功",null);
+            Map<Integer,String> errors = new HashMap<>();
+            int i=1;
+
             for (Long id:ids){
-                if (!messageMapper.selectById(id).getUsername().equals(username)){
-                    result.put("error",id+"删除失败,无权限");
-                    log.warn(username + "正在进行违法操作......");
+                Message message = messageMapper.selectById(id);
+                if (message==null){
+                    errors.put(i++,"id:" +id+" 不存在");
+                }
+                if (!message.getUsername().equals(username)){
+                    errors.put(i++,"id:" +id+" 无权限");
                 }
                 else {
                     messageMapper.deleteById(id);
                 }
             }
-            return result;
+
+            if(!errors.isEmpty()){
+                RestResult result = new RestResult(1,"部分失败",null);
+                result.put("errors",errors);
+                return result;
+            }
+            return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             return new RestResult(0,"操作失败",null);
         }
@@ -49,19 +62,28 @@ public class UserMessageServiceImpl implements UserMessageService {
     @Override
     public RestResult updateUserMessageReadTagByIds(List<Long> ids, String username) {
         try {
-            RestResult result = new RestResult(1,"操作成功",null);
+            Map<Integer,String> errors = new HashMap<>();
+            int i=1;
+
             for (Long id:ids){
                 Message message = messageMapper.selectById(id);
+                if (message==null){
+                    errors.put(i++,"id:" +id+" 不存在");
+                }
                 if (!message.getUsername().equals(username)){
-                    result.put("error",id+"删除失败,无权限");
-                    log.warn(username + "正在进行违法操作......");
+                    errors.put(i++,"id:" +id+" 无权限");
                 }
                 else {
                     message.setReadTag(1);
                     messageMapper.updateById(message);
                 }
             }
-            return result;
+            if(!errors.isEmpty()){
+                RestResult result = new RestResult(1,"部分失败",null);
+                result.put("errors",errors);
+                return result;
+            }
+            return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             return new RestResult(0,"操作失败",null);
         }
