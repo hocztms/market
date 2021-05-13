@@ -5,6 +5,7 @@ import com.hocztms.service.GoodsService;
 import com.hocztms.service.PictureService;
 import com.hocztms.service.UserService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
+import com.hocztms.vo.GoodsLabelVo;
 import com.hocztms.vo.GoodsVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -115,15 +116,12 @@ public class UserGoodsController {
    添加用户商品标签
     */
     @ApiOperation("添加用户商品标签")
-    @DeleteMapping("/addGoodsLabel")
+    @PostMapping("/addGoodsLabel")
     public RestResult addGoodsLabel(
-            @ApiParam(value = "商品id  传JSON 类似 [0,1,2,3....]") @RequestBody List<Long> ids,
+            @Valid @RequestBody GoodsLabelVo goodsLabelVo,
             HttpServletRequest request){
-        if (ids.isEmpty()){
-            return new RestResult(0,"数据不能为空",null);
-        }
         String username = jwtAuthService.getTokenUsername(request);
-        return goodsService.createGoodsLabel(ids,username);
+        return goodsService.addGoodsLabelById(goodsLabelVo,username);
     }
 
     /*

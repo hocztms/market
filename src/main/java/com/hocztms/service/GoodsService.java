@@ -3,6 +3,7 @@ package com.hocztms.service;
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.Goods;
 import com.hocztms.entity.GoodsLabel;
+import com.hocztms.vo.GoodsLabelVo;
 import com.hocztms.vo.GoodsVo;
 import com.hocztms.vo.OrderBy;
 
@@ -33,7 +34,6 @@ public interface GoodsService {
     Goods findGoodsByGoodsId(Long id);
 
     boolean checkOrderBy(String orderBy);
-
 
     List<Goods> selectListByUsername(String username);
 

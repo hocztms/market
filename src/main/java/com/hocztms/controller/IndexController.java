@@ -31,7 +31,7 @@ public class IndexController {
     private IndexGoodsService indexGoodsService;
 
     /*
-    首页获取全部商品
+    首页获取全部商品 已测试
      */
     @ApiOperation("首页获取全部商品")
     @GetMapping("/getGoods")
@@ -45,7 +45,7 @@ public class IndexController {
     }
 
     /*
-    首页通过标签获取商品
+    首页通过标签获取商品 已测试
      */
     @ApiOperation("通过标签获取商品")
     @GetMapping("/getGoodsByLabel")
@@ -61,7 +61,7 @@ public class IndexController {
         return indexGoodsService.indexGetGoodsByLabel(page,size,labelId,mode);
     }
     /*
-    首页通过关键词搜索商品
+    首页通过关键词搜索商品 已测试
      */
     @ApiOperation("首页通过关键词搜索商品")
     @GetMapping("/getGoodsByKeyword")
@@ -77,7 +77,7 @@ public class IndexController {
     }
 
     /*
-    首页获取商品主图片
+    首页获取商品主图片 已测试
      */
     @ApiOperation("首页获取商品主图片")
     @GetMapping("/getGoodsMainPicture")
@@ -86,7 +86,7 @@ public class IndexController {
     }
 
     /*
-    根据fid获取标签
+    根据fid获取标签 已测试
      */
     @ApiOperation("根据fid获取标签")
     @GetMapping("/getLabelByFid")

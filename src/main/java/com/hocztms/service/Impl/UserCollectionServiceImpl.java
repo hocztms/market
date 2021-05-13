@@ -64,7 +64,11 @@ public class UserCollectionServiceImpl implements UserCollectionService {
             RestResult result = new RestResult(1,"操作成功",null);
 
             for (Long id:ids){
-                if (!collectionMapper.selectById(id).getUsername().equals(username)){
+                if (collectionMapper.selectById(id)==null){
+                    result.put("error",id + "不存在...");
+                    log.warn(username + "正在执行非法操作.....");
+                }
+                else if (!collectionMapper.selectById(id).getUsername().equals(username)){
                     result.put("error",id + "无权限...");
                     log.warn(username + "正在执行非法操作.....");
                 }

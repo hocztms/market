@@ -58,7 +58,7 @@ public class UserBaseController {
     private RedisService redisService;
 
     /*
-    用户登录 (管理员和用户都包含 返回RestResult中 code = 1为用户 2为管理员 0为登录失败)
+    用户登录 (管理员和用户都包含 返回RestResult中 code = 1为用户 2为管理员 0为登录失败)  已测试
      */
     @ApiOperation("用户登录 (管理员和用户都包含 返回RestResult中 code = 1为用户 2为管理员 0为登录失败)")
     @PostMapping("/login")
@@ -75,7 +75,7 @@ public class UserBaseController {
     }
 
     /*
-    用户注册
+    用户注册  已测试
      */
     @ApiOperation("用户注册")
     @PostMapping("/register")
@@ -89,7 +89,7 @@ public class UserBaseController {
     }
 
     /*
-    用户注销
+    用户注销  已测试
      */
     @ApiOperation("用户注销,利用redis 设置黑名单")
     @PostMapping("/logout")
@@ -98,7 +98,7 @@ public class UserBaseController {
     }
 
     /*
-    发送邮箱注册验证码
+    发送邮箱注册验证码  已测试
      */
     @ApiOperation("发送邮箱注册验证码")
     @PostMapping("/sendEmailCode")
@@ -108,7 +108,7 @@ public class UserBaseController {
 
 
     /*
-    用户找回密码
+    用户找回密码  已测试
      */
     @ApiOperation("用户找回密码 传username 和 email")
     @PostMapping("/getPassword")
@@ -118,7 +118,7 @@ public class UserBaseController {
     }
 
     /*
-    用户根据密钥修改密码
+    用户根据密钥修改密码  已测试
      */
     @ApiOperation("用户根据密钥修改密码 传username,password,secret")
     @PostMapping("/rePassword")
@@ -128,7 +128,7 @@ public class UserBaseController {
     }
 
     /*
-    用户根据获取验证码
+    用户根据获取验证码  已测试
      */
     @ApiOperation("用户根据获取验证码")
     @GetMapping("/getCode")

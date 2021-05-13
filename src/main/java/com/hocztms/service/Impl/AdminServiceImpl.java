@@ -85,7 +85,7 @@ public class AdminServiceImpl implements AdminService {
             goodsService.updateGoodsTag(goodId,-1);
             emailService.sendCheckGoodsEmail(goodId,-1);
 
-            userMessageService.sendUsersMessage(users.getUsername(),"您的商品id为" + goods.getId() + "  " + goods.getMsg() + "审核不通过.....",0,goods.getId());
+            userMessageService.sendUsersMessage(users.getUsername(),"您的商品id为" + goods.getId() + "  " + goods.getMsg() + "审核不通过.....违法记录+1",0,goods.getId());
             return new RestResult(1,"操作成功",null);
         }catch (Exception e){
             return new RestResult(0,e.getMessage(),null);
@@ -107,7 +107,7 @@ public class AdminServiceImpl implements AdminService {
             goodsService.updateGoodsTag(goodId,1);
             emailService.sendCheckGoodsEmail(goodId,1);
 
-            userMessageService.sendUsersMessage(goods.getSeller(),"您的商品id为" + goods.getId() + "  " + goods.getMsg() + "审核不通过,违法记录+1.....",0,goods.getId());
+            userMessageService.sendUsersMessage(goods.getSeller(),"您的商品id为" + goods.getId() + "  " + goods.getMsg() + "审核通过",0,goods.getId());
 
         }catch (Exception e){
             return new RestResult(0,e.getMessage(),null);

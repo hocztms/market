@@ -3,6 +3,7 @@ package com.hocztms;
 
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.*;
@@ -96,9 +97,18 @@ class MarketApplicationTests {
 
     @Test
     public void test(){
-        Users users = userService.findUsersByUsername("test");
-        boolean matches = passwordEncoder.matches("a1598753A", users.getPassword());
-        System.out.println(matches);
+        Address address = new Address();
+        address = addressMapper.selectById(7);
+        QueryWrapper <Address > wrapper = new QueryWrapper<>();
+        wrapper.eq("address_id",address.getAddressId()) ;
+        wrapper.eq("phone","1111");
+        address.setPhone("22223");
+        Integer a  = addressMapper.update(address,wrapper);
+        address.setPhone("11113");
+        Integer b  = addressMapper.update(address,wrapper);
+        System.out.println(a+" "+ b);
+
+
     }
 }
 

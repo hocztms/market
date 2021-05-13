@@ -27,7 +27,7 @@ public class UserCollectionController {
 
 
     /*
-    用户收藏商品
+    用户收藏商品  已测试
      */
     @ApiOperation("用户收藏商品")
     @PostMapping("/collectGoods")
@@ -38,10 +38,10 @@ public class UserCollectionController {
     }
 
     /*
-    用户获取收藏列表
+    用户获取收藏列表  已测试
      */
     @ApiOperation("用户收藏商品")
-    @GetMapping("/getCollection")
+        @GetMapping("/getCollection")
     public RestResult getCollection(
             long page,
             long size,
@@ -53,7 +53,7 @@ public class UserCollectionController {
     }
 
     /*
-    用户删除商品收藏
+    用户删除商品收藏  已测试
      */
     @ApiOperation("用户删除商品收藏")
     @DeleteMapping("/deleteCollection")

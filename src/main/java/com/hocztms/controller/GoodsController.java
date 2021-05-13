@@ -1,8 +1,8 @@
 package com.hocztms.controller;
 
 import com.hocztms.common.RestResult;
-import com.hocztms.service.GoodsService;
 import io.swagger.annotations.Api;
+import com.hocztms.service.GoodsService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
