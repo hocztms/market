@@ -2,12 +2,13 @@ package com.hocztms.service;
 
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.Label;
+import com.hocztms.vo.IllegalGoodsVo;
 
 public interface AdminService {
 
     RestResult adminGetGoods(long page, long size);
 
-    RestResult adminDeleteGoods(Long goodId);
+    RestResult adminDeleteGoods(IllegalGoodsVo illegalGoodsVo);
 
     RestResult adminPassGoods(Long goodId);
 

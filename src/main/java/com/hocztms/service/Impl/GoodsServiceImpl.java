@@ -110,10 +110,11 @@ public class GoodsServiceImpl implements GoodsService {
             for (Long id : ids) {
                 Goods goods = findGoodsByGoodsId(id);
                 OrderForm orderForm = orderFormService.findOrderFormById(id);
-
+                //只有未订单的商品是可以删除的 如果有订单且未完成 就不能删除 审核不通过未审核商品审核成功商品都能删除
                 if (goods == null) {
                     errors.put(i++, id + " 商品不存在");
-                } else if (!goods.getSeller().equals(username)) {
+                }
+                else if (!goods.getSeller().equals(username)) {
                     errors.put(i++, id + " 违法操作,无权限");
                 } else if (orderForm != null && orderForm.getTag() == 0) {
                     errors.put(i++, id + " 订单未完成");
@@ -138,6 +139,7 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             Goods goods = findGoodsByGoodsId(goodsVo.getGoodsId());
 
+            //售出的商品就不能再更改信息 也不需要更改信息 而其他审核不通过 审核通过 未审核都能更改 且会更改状态 不需要单独去写 审核不通过重发布的接口
             if (goods.getStatus()==0){
                 return new RestResult(0,"商品已售出",null);
             }

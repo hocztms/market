@@ -1,6 +1,7 @@
 package com.hocztms.service;
 
 import com.hocztms.common.RestResult;
+import com.hocztms.entity.ReportInfo;
 import com.hocztms.vo.ReportVo;
 import org.w3c.dom.stylesheets.LinkStyle;
 
@@ -15,4 +16,6 @@ public interface ReportService {
     RestResult adminPassReport(Long id);
 
     RestResult adminDeleteReport(List<Long> ids);
+
+    Integer getUserReportInfoNum(String username);
 }

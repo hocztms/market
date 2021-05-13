@@ -8,9 +8,11 @@ import com.hocztms.service.AdminService;
 import com.hocztms.service.GoodsService;
 import com.hocztms.service.ReportService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
+import com.hocztms.vo.IllegalGoodsVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import java.util.List;
 @RestController
 @PreAuthorize("hasAuthority('admin')")
 @RequestMapping("/admin")
+@Slf4j
 @Api(tags = "管理员功能方法说明，权限要求：管理员")
 public class AdminController {
 
@@ -67,13 +70,13 @@ public class AdminController {
     @ApiOperation("假删除审核不通过商品")
     @DeleteMapping("/deleteGoods")
     public RestResult deleteGoods(
-            @ApiParam(value = "JSON数据 格式 例如 1")@RequestBody Long goodsId){
-        if (goodsId==null){
+            @Valid @RequestBody IllegalGoodsVo goodsVo){
+        if (goodsVo==null){
             return new RestResult   (0,"数据不能为空",null);
         }
         else {
-            System.out.println(goodsId);
-            return adminService.adminDeleteGoods(goodsId);
+            log.info(goodsVo.toString());
+            return adminService.adminDeleteGoods(goodsVo);
         }
     }
 
