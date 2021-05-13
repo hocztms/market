@@ -27,7 +27,7 @@ public class UserOrderFormController {
     private OrderFormService orderFormService;
 
     /*
-    用户下单
+    用户下单 已测试
      */
     @ApiOperation("用户下单")
     @PostMapping("/orderGoods")
@@ -39,17 +39,17 @@ public class UserOrderFormController {
     }
 
     /*
-    用户获取全部购买订单信息
+    用户获取全部购买订单信息 已测试
      */
     @ApiOperation("用户获取全部购买订单信息")
-    @GetMapping("/getOrderFormByBuy")
+    @GetMapping("/getOrderFormByBuyer")
     public RestResult getOrderFormByBuy(HttpServletRequest request){
         String username = jwtAuthService.getTokenUsername(request);
         return orderFormService.findBuyerOrderFormByUsername(username);
     }
 
     /*
-    用户获取全部售卖订单信息
+    用户获取全部售卖订单信息 已测试
      */
     @ApiOperation("用户获取全部售卖订单信息")
     @GetMapping("/getOrderFormBySeller")
@@ -59,7 +59,7 @@ public class UserOrderFormController {
     }
 
     /*
-    用户获根据id获取订单信息
+    用户获根据id获取订单信息 已测试
      */
     @ApiOperation("用户获根据id获取订单信息")
     @GetMapping("/getOrderFormById")
@@ -71,7 +71,7 @@ public class UserOrderFormController {
     }
 
     /*
-    用户删除购买订单
+    用户删除购买订单 已测试
      */
     @ApiOperation("用户删除购买订单")
     @DeleteMapping("/deleteOrderFormByBuy")
@@ -84,7 +84,7 @@ public class UserOrderFormController {
     }
 
     /*
-    用户删除售卖订单
+    用户删除售卖订单 已测试
      */
     @ApiOperation("用户删除售卖订单")
     @DeleteMapping("/deleteOrderFormBySeller")
@@ -97,35 +97,34 @@ public class UserOrderFormController {
     }
 
     /*
-    用户确认订单
+    用户确认订单 已测试
      */
     @ApiOperation("用户确认订单")
     @PutMapping("/confirmUserOrderForm")
-    public RestResult confirmUserOrderForm(@RequestBody long id, HttpServletRequest request){
+    public RestResult confirmUserOrderForm(@RequestBody Long id, HttpServletRequest request){
         String username = jwtAuthService.getTokenUsername(request);
         return orderFormService.updateUserOrderFormConfirmed(id,username);
     }
 
     /*
-    买家取消订单
+    买家取消订单 已测试
      */
     @ApiOperation("买家取消订单")
     @PutMapping("/cancelOrderFormByBuyer")
-    public RestResult cancelOrderFormByBuyer(@RequestBody long id, HttpServletRequest request){
+    public RestResult cancelOrderFormByBuyer(@RequestBody Long id, HttpServletRequest request){
         String username = jwtAuthService.getTokenUsername(request);
         return orderFormService.updateBuyerCancelOrderFormById(id,username);
 
     }
 
     /*
-    卖家取消订单
+    卖家取消订单 已测试
      */
     @ApiOperation("卖家取消订单")
     @PutMapping("/cancelOrderFormBySeller")
-    public RestResult cancelOrderFormBySeller(@RequestBody long id, HttpServletRequest request){
+    public RestResult cancelOrderFormBySeller(@RequestBody Long id, HttpServletRequest request){
         String username = jwtAuthService.getTokenUsername(request);
         return orderFormService.updateSellerCancelOrderFormById(id,username);
-
     }
 
 }

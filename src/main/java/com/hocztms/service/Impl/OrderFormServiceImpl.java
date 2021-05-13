@@ -38,6 +38,9 @@ public class OrderFormServiceImpl implements OrderFormService {
     public RestResult userOrderGoods(OrderFormVo orderForm, String username) {
         try {
             Goods goods = goodsService.findGoodsByGoodsId(orderForm.getGoodsId());
+            if (goods==null||goods.getStatus()!=1){
+                return new RestResult(0,"商品售空!",null);
+            }
             if (goods.getSeller().equals(username)){
                 return new RestResult(0,"不允许刷单",null);
             }
@@ -261,7 +264,7 @@ public class OrderFormServiceImpl implements OrderFormService {
                 return new RestResult(0,"无权限",null);
             }
 
-            return new RestResult(1,"操作成功",null);
+            return new RestResult(1,"操作成功",orderFormById);
         }catch (Exception e){
             return new RestResult(0,"操作失败",null);
         }

@@ -6,9 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
 @Data
 @AllArgsConstructor
@@ -17,14 +15,16 @@ import javax.validation.constraints.Pattern;
 public class MessageVo {
 
     @ApiModelProperty(value = "反馈 id 0代表反馈商品,1代表反馈订单 2代表其他",required = true,example = "2")
-    @Pattern(regexp = "^(0|1|2)",message = "")
+    @Max(message = "反馈 id 0代表反馈商品,1代表反馈订单 2代表其他",value = 2)
+    @Min(message = "反馈 id 0代表反馈商品,1代表反馈订单 2代表其他",value = 0)
+    @NotNull(message = "objectTag不能为空")
     private Long objectTag; //判断id类型 方便前端跳转 0商品id 1订单id
 
     @ApiModelProperty(value = "反馈事务id 如果没有填0",required = true,example = "0")
-    @NotNull
+    @NotNull(message = "objectId不能为空")
     private Long objectId;
 
     @ApiModelProperty(value = "反馈信息",required = true)
-    @NotBlank
+    @NotBlank(message = "msg不能为空")
     private String msg;
 }

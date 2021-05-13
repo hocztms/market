@@ -30,7 +30,7 @@ public class UserInfoController {
     private UserService userService;
 
     /*
-    发送修改邮箱密钥
+    发送修改邮箱密钥 已测试
      */
     @ApiModelProperty("发送修改邮箱密钥")
     @PostMapping("/getUpdateEmailCode")
@@ -40,7 +40,7 @@ public class UserInfoController {
     }
 
     /*
-    修改邮箱
+    修改邮箱 已测试
      */
     @ApiModelProperty("修改邮箱")
     @PutMapping("/updateEmailByCode")
@@ -50,7 +50,7 @@ public class UserInfoController {
     }
 
     /*
-    修改电话
+    修改电话 已测试
      */
     @ApiModelProperty("修改电话")
     @PutMapping("/updatePhone")

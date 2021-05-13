@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.ReportInfo;
 import com.hocztms.mapper.ReportInfoMapper;
-import com.hocztms.service.IllegalUserService;
-import com.hocztms.service.ReportService;
-import com.hocztms.service.UserMessageService;
-import com.hocztms.service.UserService;
+import com.hocztms.service.*;
 import com.hocztms.vo.ReportVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +28,9 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AdminService adminService;
+
     @Override
     public RestResult userReportIllegalPeople(ReportVo reportVo, String username) {
         try {
@@ -38,6 +38,10 @@ public class ReportServiceImpl implements ReportService {
                 return new RestResult(0,"用户不存在",null);
             }
 
+            if (username.equals(reportVo.getIllegalPeople())){
+                adminService.adminFreezeUser(username);
+                return new RestResult(1,"你怎么能举报自己呢? 直接帮您冻结了",null);
+            }
 
             ReportInfo reportInfo = new ReportInfo(0,reportVo.getType(),reportVo.getMsg(),reportVo.getIllegalPeople(),username,new Date(),0);
             reportInfoMapper.insert(reportInfo);

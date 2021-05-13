@@ -31,7 +31,7 @@ public class UserMessageController {
     private ReportService reportService;
 
     /*
-    获取用户全部消息
+    获取用户全部消息  已测试
      */
     @ApiOperation("获取用户全部消息")
     @GetMapping("/getMsg")
@@ -42,7 +42,7 @@ public class UserMessageController {
 
 
     /*
-    阅读用户消息
+    阅读用户消息  已测试
      */
     @ApiOperation("阅读用户消息")
     @PutMapping("/readMsg")
@@ -55,7 +55,7 @@ public class UserMessageController {
 
 
     /*
-    删除用户消息
+    删除用户消息  已测试
      */
     @ApiOperation("删除用户消息")
     @DeleteMapping("/deleteMsg")
@@ -67,7 +67,7 @@ public class UserMessageController {
     }
 
     /*
-    用户反馈消息
+    用户反馈消息  已测试
      */
     @ApiOperation("用户反馈消息")
     @PostMapping("/feedback")
@@ -79,7 +79,7 @@ public class UserMessageController {
     }
 
     /*
-    用户举报
+    用户举报  已测试
      */
     @ApiOperation("用户举报")
     @PostMapping("/report")
