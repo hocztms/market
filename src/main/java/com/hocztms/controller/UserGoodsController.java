@@ -87,11 +87,25 @@ public class UserGoodsController {
     }
 
     /*
-    获取商品
+    获取商品 与前端商量由前端 来分页并且根据status tag 进行变色变暗
      */
     @ApiOperation("获取用户商品")
     @GetMapping("/getUserGoods")
     public RestResult getUserGoods(HttpServletRequest request){
+        String username = jwtAuthService.getTokenUsername(request);
+        log.info(username + "getUserGoods....");
+        return userService.getUserGoods(username);
+    }
+
+    /*
+    获取商品 与前端商量由前端 来分页并且根据status tag 进行变色变暗
+     */
+    @ApiOperation("获取用户商品")
+    @GetMapping("/getUserNormalGoods")
+    public RestResult getUserNormalGoods(
+            @ApiParam(value = "页数") long page,
+            @ApiParam(value = "大小") long size,
+            HttpServletRequest request){
         String username = jwtAuthService.getTokenUsername(request);
         log.info(username + "getUserGoods....");
         return userService.getUserGoods(username);

@@ -15,6 +15,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 
@@ -37,6 +38,7 @@ public class WebLogAspect {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         logger.info("URL: "+request.getRequestURL().toString()+" HTTP_METHOD: "+request.getMethod()+" IP: "+request.getRemoteAddr()+" User: " + jwtAuthService.getTokenUsername(request));
+        logger.info("data: "+ Arrays.toString(joinPoint.getArgs()));
 
     }
 
