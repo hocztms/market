@@ -10,31 +10,31 @@ import java.util.List;
 public interface UserService {
 
 
-    public Users findUsersByUsername(String username);
+    Users findUsersByUsername(String username);
 
-    public RestResult ReUserPasswordBySecret(PasswordEmail passwordEmail);
+    RestResult ReUserPasswordBySecret(PasswordEmail passwordEmail);
 
-    public Integer insertUser(Users users);
+    Integer insertUser(Users users);
 
-    public RestResult updateUserEmailByEmailCode(String username, UpdateEmailVo updateEmailVo);
+    RestResult updateUserEmailByEmailCode(String username, UpdateEmailVo updateEmailVo);
 
-    public RestResult updateUserPhoneByUsername(String username, String phone);
+    RestResult updateUserPhoneByUsername(String username, String phone);
 
-    public Users findUsersByEmail(String email);
+    Users findUsersByEmail(String email);
 
-    public Users findUsersByPhone(String phone);
+    Users findUsersByPhone(String phone);
 
-    public List<Role> getUserRoles (String username);
+    List<Role> getUserRoles(String username);
 
-    public RestResult getUserGoods(String username);
+    RestResult getUserGoods(String username);
 
-    public RestResult getUserNormalGoods(long page,long size,String username);
+    RestResult getUserNormalGoods(long page, long size, String username);
 
-    public RestResult getUserIllegalGoods(long page, long size, String username);
+    RestResult getUserIllegalGoods(long page, long size, String username);
 
-    public Integer updateUser(Users users);
+    Integer updateUser(Users users);
 
-    public Integer updateUserStatusByUsername(String username,int status);
+    Integer updateUserStatusByUsername(String username, int status);
 
     String userContactToStringByUsername(String username);
 

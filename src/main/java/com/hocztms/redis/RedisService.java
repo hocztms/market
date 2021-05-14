@@ -1,10 +1,8 @@
 package com.hocztms.redis;
 
-import com.hocztms.utils.RedisUtils;
 import com.hocztms.webSocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

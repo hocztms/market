@@ -20,9 +20,9 @@ public class EamilUtils {
     private JavaMailSenderImpl javaMailSenderImpl;
 
 
-    private static String senderAdress = "1107578936@qq.com";
+    private static final String senderAdress = "1107578936@qq.com";
 
-    private static String sendername = "二手交易市场";
+    private static final String sendername = "二手交易市场";
 
     /*
     发送找回密码文件

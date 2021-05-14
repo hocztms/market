@@ -1,7 +1,6 @@
 package com.hocztms.webSocket;
 
 
-import com.hocztms.springSecurity.jwt.JwtTokenUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;

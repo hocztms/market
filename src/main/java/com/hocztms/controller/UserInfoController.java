@@ -5,7 +5,6 @@ import com.hocztms.common.RestResult;
 import com.hocztms.service.EmailService;
 import com.hocztms.service.UserService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
-import com.hocztms.vo.EmailVo;
 import com.hocztms.vo.PhoneVo;
 import com.hocztms.vo.UpdateEmailVo;
 import io.swagger.annotations.ApiModelProperty;

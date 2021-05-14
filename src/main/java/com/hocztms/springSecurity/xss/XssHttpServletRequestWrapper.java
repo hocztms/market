@@ -69,8 +69,9 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getHeader(String name) {
         String value = super.getHeader(name);
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         String cleanedValue = XssUtils.cleanXss(value);
 
         if (!cleanedValue.equals(value)) {

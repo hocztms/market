@@ -186,7 +186,7 @@ public class PictureServiceImpl implements PictureService {
 
     @Override
     public List<Picture> findPictureByGoodsId(Long goodsId) {
-        QueryWrapper wrapper = new QueryWrapper();
+        QueryWrapper<Picture> wrapper = new QueryWrapper<>();
         wrapper.eq("goods_id",goodsId);
         return pictureMapper.selectList(wrapper);
     }

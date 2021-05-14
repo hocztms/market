@@ -11,7 +11,7 @@ import java.io.PrintWriter;
 
 public class MyLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         response.setHeader("Content-type", "application/json;charset=utf-8");
         PrintWriter writer = response.getWriter();
         writer.write("{\"code\":\"1\",\"msg\":\"登出成功\"}");

@@ -2,7 +2,6 @@ package com.hocztms.springSecurity.jwt;
 
 import com.alibaba.fastjson.JSONObject;
 import com.hocztms.common.RestResult;
-import com.hocztms.springSecurity.entity.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,7 +30,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter{
     private UserDetailsService userDetailServiceImpl;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException {
         try {
             String token = jwtAuthService.getToken(request);
             if (token != null && token.length() > 0) {

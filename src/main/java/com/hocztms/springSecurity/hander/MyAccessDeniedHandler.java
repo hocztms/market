@@ -11,7 +11,7 @@ import java.io.PrintWriter;
 
 public class MyAccessDeniedHandler implements AccessDeniedHandler {
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException e) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException e) throws IOException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setHeader("Content-type", "application/json;charset=utf-8");
         PrintWriter writer = response.getWriter();

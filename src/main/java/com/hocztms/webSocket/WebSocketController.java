@@ -1,16 +1,11 @@
 package com.hocztms.webSocket;
 
-import com.hocztms.entity.Message;
 import com.hocztms.service.UserMessageService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Date;
 
 @RestController
 @RequestMapping("/socket")

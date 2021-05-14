@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Random;
@@ -30,7 +28,7 @@ public class CodeUtils {
         Random random = new Random();
         int len = ch.length;
         int index;
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
 
         for (int i=0;i<4;i++){
             index = random.nextInt(len);
@@ -53,10 +51,7 @@ public class CodeUtils {
 
     public  boolean codeIsEmpty(String key){
         String code = codeRedisTemplate.opsForValue().get(key);
-        if (code==null){
-            return true;
-        }
-        return false;
+        return code == null;
     }
 
     public  boolean checkKeyValueByKey(String key,String value){
@@ -75,7 +70,7 @@ public class CodeUtils {
         int len = ch.length;
         int index;
         Random random = new Random();
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         for (int i = 0;i<4;i++){
             index = random.nextInt(len);
             stringBuffer.append(ch[index]);

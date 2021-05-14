@@ -1,7 +1,6 @@
 package com.hocztms.springSecurity.jwt;
 
 import com.hocztms.common.RestResult;
-import com.hocztms.entity.Users;
 import com.hocztms.redis.RedisService;
 import com.hocztms.service.UserService;
 import com.hocztms.springSecurity.entity.MyUserDetails;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +31,7 @@ public class JwtAuthService  {
 
 
     public RestResult login(String username, String password) {
-        Authentication authentication = null;
+        Authentication authentication;
         try {
             // 进行身份验证,
             authentication = authenticationManager.authenticate(

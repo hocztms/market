@@ -2,18 +2,9 @@ package com.hocztms;
 
 
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.hocztms.common.RestResult;
-import com.hocztms.entity.*;
 import com.hocztms.mapper.*;
 import com.hocztms.service.*;
-import com.hocztms.springSecurity.jwt.JwtTokenUtils;
 import com.hocztms.utils.GoodsUtils;
-import com.hocztms.utils.RedisUtils;
-import com.hocztms.utils.WebUtils;
-import com.hocztms.vo.ReportVo;
 import com.hocztms.webSocket.WebSocketServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +13,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -58,9 +48,6 @@ class MarketApplicationTests {
 
     @Autowired
     AddressService addressService;
-
-    @Autowired
-    WebUtils webUtils;
 
     @Autowired
     OrderFormMapper orderFormMapper;
@@ -100,9 +87,6 @@ class MarketApplicationTests {
 
     @Test
     public void test(){
-        Integer test = userMessageService.getUserTodayFeedBackNum("test");
-        System.out.println(test);
-
     }
 }
 

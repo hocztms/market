@@ -2,7 +2,6 @@ package com.hocztms.utils;
 
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,7 +42,7 @@ public class FileUtils {
     }
 
 
-    public void downloadPicture(String picturename, HttpServletResponse response) throws Exception {
+    public void downloadPicture(String picturename, HttpServletResponse response) {
         try {
             String filePath = path + picturename;
             InputStream bis = new BufferedInputStream(new FileInputStream(filePath));
@@ -77,30 +76,26 @@ public class FileUtils {
 
     public boolean checkPictureSuffixName(String suffixName){
         String suffixList = "JPG,JPEG,PNG,GIF,BMP,jpg,jpeg,png,gif,bmp";
-        String suffix = suffixName.substring(suffixName.lastIndexOf(".")+1,suffixName.length());
-        if (suffixList.indexOf(suffix)>=0){
-            return true;
-        }
-        return false;
+        String suffix = suffixName.substring(suffixName.lastIndexOf(".")+1);
+        return suffixList.contains(suffix);
     }
 
     public  boolean checkFileSize(Long len, int size, String unit) {
         double fileSize = 0;
-        if ("B".equals(unit.toUpperCase())) {
-            fileSize = (double) len;
+        switch (unit.toUpperCase()) {
+            case "B":
+                fileSize = (double) len;
+                break;
+            case "K":
+                fileSize = (double) len / 1024;
+                break;
+            case "M":
+                fileSize = (double) len / 1048576;
+                break;
+            case "G":
+                fileSize = (double) len / 1073741824;
+                break;
         }
-        else if ("K".equals(unit.toUpperCase())) {
-            fileSize = (double) len / 1024;
-        }
-        else if ("M".equals(unit.toUpperCase())) {
-            fileSize = (double) len / 1048576;
-        }
-        else if ("G".equals(unit.toUpperCase())) {
-            fileSize = (double) len / 1073741824;
-        }
-        if (size>fileSize) {
-            return false;
-        }
-        return true;
+        return !(size > fileSize);
     }
 }

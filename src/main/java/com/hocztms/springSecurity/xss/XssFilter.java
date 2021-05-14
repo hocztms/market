@@ -11,10 +11,9 @@ import java.util.List;
 
 @Component
 @WebFilter(filterName="xssFilter", urlPatterns="/*")
-@SuppressWarnings("unchecked")
 public class XssFilter implements Filter {
 
-    private List<String> excludes = Arrays.asList(
+    private final List<String> excludes = Arrays.asList(
             "/login", "/logout", ".html", ".jpeg", ".gif", ".jpg", ".png",".bmp",".JPEG",".GIF",".JPG",".PNG","BMP");
 
 
@@ -35,7 +34,7 @@ public class XssFilter implements Filter {
             return;
         }
 
-        XssHttpServletRequestWrapper xssRequest = new XssHttpServletRequestWrapper((HttpServletRequest) request);
+        XssHttpServletRequestWrapper xssRequest = new XssHttpServletRequestWrapper(request);
         filterChain.doFilter(xssRequest, servletResponse);
 
     }
@@ -43,7 +42,9 @@ public class XssFilter implements Filter {
 
     public boolean isFilter(HttpServletRequest request){
         String path = request.getServletPath();
-        if (path==null) return false;
+        if (path==null) {
+            return false;
+        }
         return excludes.stream().anyMatch(method->path.endsWith(method)||path.matches(method));
     }
 }

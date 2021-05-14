@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.hocztms.springSecurity.jwt.JwtTokenUtils;
 import com.hocztms.vo.SocketMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.websocket.WsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

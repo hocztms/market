@@ -17,11 +17,11 @@ public class GoodsUtils {
         List<Term> termList = StandardTokenizer.segment(msg);
 
         // 拼接正则字符串
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < termList.size(); i++) {
             String word = termList.get(i).word;
             if (i != termList.size() - 1) {
-                sb.append(word + "|");
+                sb.append(word).append("|");
             } else {
                 sb.append(word);
             }
@@ -30,18 +30,10 @@ public class GoodsUtils {
     }
 
     public boolean isEmpty(Goods goods) {
-        if (goods.getMsg()==null||goods.getPrice()==0||goods.getLevel()==0){
-            return true;
-        }
-        return false;
+        return goods.getMsg() == null || goods.getPrice() == 0 || goods.getLevel() == 0;
     }
 
     public boolean checkOrderBy(String orderBy){
-        if (orderBy.equals("date")||orderBy.equals("level")||orderBy.equals("price")){
-            return true;
-        }
-        else {
-            return false;
-        }
+        return "date".equals(orderBy) || "level".equals(orderBy) || "price".equals(orderBy);
     }
 }
