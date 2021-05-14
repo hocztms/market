@@ -1,7 +1,7 @@
 package com.hocztms.config;
 
-import com.hocztms.common.RestResult;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -16,17 +16,15 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
-import java.util.Enumeration;
 
 
 @Aspect
 @Component
+@Slf4j
 public class WebLogAspect {
 
     @Autowired
     private JwtAuthService jwtAuthService;
-
-    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Pointcut("execution(* com.hocztms.controller.*.*(..))")
     private void weblogPointcut(){
@@ -34,17 +32,18 @@ public class WebLogAspect {
     }
 
     @Before("weblogPointcut()")
-    private void doBefore(JoinPoint joinPoint) throws Throwable {
+    private void doBefore(JoinPoint joinPoint) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        assert attributes != null;
         HttpServletRequest request = attributes.getRequest();
-        logger.info("URL: "+request.getRequestURL().toString()+" HTTP_METHOD: "+request.getMethod()+" IP: "+request.getRemoteAddr()+" User: " + jwtAuthService.getTokenUsername(request));
-        logger.info("data: "+ Arrays.toString(joinPoint.getArgs()));
+        log.info("URL: "+request.getRequestURL().toString()+" HTTP_METHOD: "+request.getMethod()+" IP: "+request.getRemoteAddr()+" User: " + jwtAuthService.getTokenUsername(request));
+        log.info("data: "+ Arrays.toString(joinPoint.getArgs()));
 
     }
 
     @AfterReturning(returning = "result", pointcut = "weblogPointcut()")
-    public void doAfterReturning(Object result) throws Throwable {
-        logger.info("RESPONSE: " + result);
+    public void doAfterReturning(Object result) {
+        log.info("RESPONSE: " + result);
     }
 
 }

@@ -22,8 +22,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -95,19 +95,13 @@ class MarketApplicationTests {
     @Autowired
     private WebSocketServer webSocketServer;
 
+    @Autowired
+    private UserMessageService userMessageService;
+
     @Test
     public void test(){
-        Address address = new Address();
-        address = addressMapper.selectById(7);
-        QueryWrapper <Address > wrapper = new QueryWrapper<>();
-        wrapper.eq("address_id",address.getAddressId()) ;
-        wrapper.eq("phone","1111");
-        address.setPhone("22223");
-        Integer a  = addressMapper.update(address,wrapper);
-        address.setPhone("11113");
-        Integer b  = addressMapper.update(address,wrapper);
-        System.out.println(a+" "+ b);
-
+        Integer test = userMessageService.getUserTodayFeedBackNum("test");
+        System.out.println(test);
 
     }
 }

@@ -50,6 +50,15 @@ public class CodeUtils {
 //        ImageIO.write(bi,"JPG",response.getOutputStream());
     }
 
+
+    public  boolean codeIsEmpty(String key){
+        String code = codeRedisTemplate.opsForValue().get(key);
+        if (code==null){
+            return true;
+        }
+        return false;
+    }
+
     public  boolean checkKeyValueByKey(String key,String value){
         String code = codeRedisTemplate.opsForValue().get(key);
         if (code==null){

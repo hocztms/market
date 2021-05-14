@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.WeakHashMap;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -35,7 +34,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public RestResult userReportIllegalPeople(ReportVo reportVo, String username) {
         try {
-            if (getUserReportInfoNum(username)>5){
+            if (getUserReportInfoNum(username)>=5){
                 userMessageService.sendUsersMessage(username,"您举报过多 消停消停",2,0);
                 return new RestResult(0,"当前举报次数过多不允许举报",null);
             }
@@ -44,8 +43,7 @@ public class ReportServiceImpl implements ReportService {
             }
 
             if (username.equals(reportVo.getIllegalPeople())){
-                adminService.adminFreezeUser(username);
-                return new RestResult(1,"你怎么能举报自己呢? 直接帮您冻结了",null);
+                return new RestResult(0,"哥们想开点 别举报自己",null);
             }
 
             ReportInfo reportInfo = new ReportInfo(0,reportVo.getType(),reportVo.getMsg(),reportVo.getIllegalPeople(),username,new Date(),0);

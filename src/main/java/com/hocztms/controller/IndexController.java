@@ -1,6 +1,5 @@
 package com.hocztms.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.hocztms.common.RestResult;
 import com.hocztms.service.IndexGoodsService;
 import com.hocztms.service.LabelService;

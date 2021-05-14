@@ -3,7 +3,6 @@ package com.hocztms.common;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +16,7 @@ public class RestResult {
     private String msg;
     private Object data;
 
+    @SuppressWarnings("unchecked")
     public void put(String key, Object data) {
         if (this.data == null) {
             this.data = new HashMap<String, Object>();

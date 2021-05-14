@@ -14,10 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.geom.QuadCurve2D;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -92,6 +90,11 @@ public class UserMessageServiceImpl implements UserMessageService {
     @Override
     public RestResult userFeedback(MessageVo messageVo, String username) {
         try {
+            if (getUserTodayFeedBackNum(username)>=3){
+                return new RestResult(0,"已达今日反馈上限",null);
+            }
+
+
             Message message=new Message(0,messageVo.getObjectTag(),messageVo.getObjectId(),"admin",messageVo.getMsg(),username,new Date(),0);
             messageMapper.insert(message);
 
@@ -136,6 +139,28 @@ public class UserMessageServiceImpl implements UserMessageService {
         }catch (Exception e){
             return 0;
         }
+    }
+
+    @Override
+    public Integer getUserTodayFeedBackNum(String username) {
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar cal = Calendar.getInstance();
+        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        Date today = cal.getTime();
+        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)+1, 0, 0, 0);
+        Date tomorrow  = cal.getTime();
+
+
+        QueryWrapper<Message> wrapper = new QueryWrapper<>();
+        wrapper.eq("username","admin");
+        wrapper.eq("sender",username);
+
+
+        wrapper.le("date",tomorrow);
+        wrapper.ge("date",today);
+
+        return messageMapper.selectList(wrapper).size();
     }
 
     @Override

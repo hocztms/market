@@ -64,6 +64,9 @@ public class UserBaseController {
     @PostMapping("/login")
     public RestResult userLogin (
             @Valid @RequestBody AuthVo authVo) {
+        if (codeUtils.codeIsEmpty(authVo.getUsername())){
+            return new RestResult(0,"请先获取验证码",null);
+        }
         if (!codeUtils.checkKeyValueByKey(authVo.getUsername(),authVo.getCode())){
             return new RestResult(0,"验证码不正确",null);
         }

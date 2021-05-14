@@ -21,6 +21,8 @@ public interface UserMessageService{
 
     Integer sendAdminReportMessage();
 
+    Integer getUserTodayFeedBackNum(String username);
+
     RestResult findUserMsgByUsername(String username);
 
     List<Message> findMsgByUsername(String username);
