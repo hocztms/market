@@ -7,6 +7,7 @@ import com.hocztms.common.RestResult;
 import com.hocztms.entity.ReportInfo;
 import com.hocztms.mapper.ReportInfoMapper;
 import com.hocztms.service.*;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.ReportVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,23 +37,23 @@ public class ReportServiceImpl implements ReportService {
         try {
             if (getUserReportInfoNum(username)>=5){
                 userMessageService.sendUsersMessage(username,"您举报过多 消停消停",2,0);
-                return new RestResult(0,"当前举报次数过多不允许举报",null);
+                return ResultUtils.error(0,"当前举报次数过多不允许举报");
             }
             if (userService.findUsersByUsername(reportVo.getIllegalPeople())==null){
-                return new RestResult(0,"用户不存在",null);
+                return ResultUtils.error(0,"用户不存在");
             }
 
             if (username.equals(reportVo.getIllegalPeople())){
-                return new RestResult(0,"哥们想开点 别举报自己",null);
+                return ResultUtils.error(0,"哥们想开点 别举报自己");
             }
 
             ReportInfo reportInfo = new ReportInfo(0,reportVo.getType(),reportVo.getMsg(),reportVo.getIllegalPeople(),username,new Date(),0);
             reportInfoMapper.insert(reportInfo);
 
             userMessageService.sendAdminReportMessage();
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -63,9 +64,9 @@ public class ReportServiceImpl implements ReportService {
             wrapper.orderByAsc("handled");
             wrapper.orderByDesc("date");
             IPage<ReportInfo> reportInfoIPage = reportInfoMapper.selectPage(new Page<>(page, size), wrapper);
-            return new RestResult(1,"操作成功",reportInfoIPage.getRecords());
+            return ResultUtils.success(reportInfoIPage.getRecords());
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -76,7 +77,7 @@ public class ReportServiceImpl implements ReportService {
 
 
             if (reportInfo.getHandled()==1){
-                return new RestResult(0,"请勿重复操作",null);
+                return ResultUtils.error(0,"请勿重复操作");
             }
             reportInfo.setHandled(1);
             reportInfoMapper.updateById(reportInfo);
@@ -85,9 +86,9 @@ public class ReportServiceImpl implements ReportService {
 
             userMessageService.sendUsersMessage(reportInfo.getInformer(),"您举报的用户" + reportInfo.getIllegalPeople() + "已成功" ,0,reportInfo.getId());
             userMessageService.sendUsersMessage(reportInfo.getIllegalPeople(),"您被举报"+reportInfo.getType() + reportInfo.getMsg() + "已经成功受理 违法记录+1",0,0);
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -107,9 +108,9 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
 
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 

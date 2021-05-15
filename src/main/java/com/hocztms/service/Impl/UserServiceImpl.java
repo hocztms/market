@@ -8,6 +8,7 @@ import com.hocztms.mapper.*;
 import com.hocztms.redis.RedisService;
 import com.hocztms.service.*;
 import com.hocztms.utils.EamilUtils;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.PasswordEmail;
 import com.hocztms.vo.UpdateEmailVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +58,10 @@ public class UserServiceImpl implements UserService {
             String keyValue = codeRedisTemplate.opsForValue().get("re&" + passwordEmail.getUsername());
 
             if (keyValue==null){
-                return new RestResult(0,"请重新获取密钥",null);
+                return ResultUtils.error(0,"请重新获取密钥");
             }
             if (!keyValue.equals(passwordEmail.getSecret())){
-                return new RestResult(0,"密钥不正确请重新输入",null);
+                return ResultUtils.error(0,"密钥不正确请重新输入");
             }
 
             Users users = findUsersByUsername(passwordEmail.getUsername());
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService {
             users.setPassword(passwordEncoder.encode(passwordEmail.getPassword()));
 
             if (updateUser(users)==0){
-                return new RestResult(0,"修改失败",null);
+                return ResultUtils.error(0,"修改失败");
             }
 
             //删除值
@@ -77,9 +78,9 @@ public class UserServiceImpl implements UserService {
 
             //主动失效 设置黑名单 并关闭已存在socket
             redisService.userLogoutByServer(users.getUsername());
-            return new RestResult(1,"修改成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,e.getMessage(),null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -107,21 +108,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public RestResult updateUserEmailByEmailCode(String username, UpdateEmailVo updateEmailVo) {
         try {
-            String redisCode = codeRedisTemplate.opsForValue().get("updateEmail$"+username);
+            String redisCode = codeRedisTemplate.opsForValue().get(RedisService.updateEmailPrefix+username);
             if (redisCode==null){
-                return new RestResult(0,"请先获取验证码",null);
+                return ResultUtils.error(0,"请先获取验证码");
+            }
+
+            if (!redisCode.equals(updateEmailVo.getCode())){
+                return ResultUtils.error(0,"验证码错误");
             }
 
             if (findUsersByEmail(updateEmailVo.getEmail())!=null){
-                return new RestResult(0,"邮箱已注册",null);
+                return ResultUtils.error(0,"邮箱已注册");
             }
             Users users = findUsersByUsername(username);
 
             users.setEmail(updateEmailVo.getEmail());
             updateUser(users);
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -129,14 +134,14 @@ public class UserServiceImpl implements UserService {
     public RestResult updateUserPhoneByUsername(String username, String phone) {
         try {
             if (findUsersByPhone(phone)!=null){
-                return new RestResult(0,"该手机已注册",null);
+                return ResultUtils.error(0,"该手机已注册");
             }
             Users usersByUsername = findUsersByUsername(username);
             usersByUsername.setPhone(phone);
             updateUser(usersByUsername);
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -166,9 +171,9 @@ public class UserServiceImpl implements UserService {
     public RestResult getUserGoods(String username) {
         try {
             List<Goods> goods = goodsService.selectListByUsername(username);
-            return new RestResult(1,"成功",goods);
+            return ResultUtils.success(goods);
         }catch (Exception e){
-            return new RestResult(1,"失败",0);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -176,15 +181,15 @@ public class UserServiceImpl implements UserService {
     public RestResult getUserNormalGoods(long page, long size, String username) {
         try {
             if (findUsersByUsername(username)==null){
-                return new RestResult(0,"用户不存在",null);
+                return ResultUtils.error(0,"用户不存在");
             }
             List<Goods> goods = goodsService.findUserNormalGoodsByUsername(page, size, username);
             if (goods.isEmpty()){
-                return new RestResult(1,"没有了",goods);
+                return ResultUtils.success("没有了",goods);
             }
-            return new RestResult(1,"操作成功",goods);
+            return ResultUtils.success(goods);
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -192,15 +197,15 @@ public class UserServiceImpl implements UserService {
     public RestResult getUserIllegalGoods(long page, long size, String username) {
         try {
             if (findUsersByUsername(username)==null){
-                return new RestResult(0,"用户不存在",null);
+                return ResultUtils.error(0,"用户不存在");
             }
             List<Goods> goods = goodsService.findUserIllegalGoodsByUsername(page, size, username);
             if (goods.isEmpty()){
-                return new RestResult(1,"没有了",goods);
+                return ResultUtils.success("没有了",goods);
             }
-            return new RestResult(1,"操作成功",goods);
+            return ResultUtils.success(goods);
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 

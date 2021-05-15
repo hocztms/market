@@ -9,6 +9,7 @@ import com.hocztms.entity.Goods;
 import com.hocztms.mapper.CollectionMapper;
 import com.hocztms.service.GoodsService;
 import com.hocztms.service.UserCollectionService;
+import com.hocztms.utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,19 +33,19 @@ public class UserCollectionServiceImpl implements UserCollectionService {
     public RestResult userCollectGoods(Long goodsId, String username) {
         try {
             if (findCollectByGoodsIdAndUsername(goodsId,username)!=null){
-                return new RestResult(0,"您已经收藏请勿重新收藏",null);
+                return ResultUtils.error(0,"您已经收藏请勿重新收藏");
             }
 
             Goods goods = goodsService.findGoodsByGoodsId(goodsId);
             if (goods==null){
-                return new RestResult(0,"商品不存在",null);
+                return ResultUtils.error(0,"商品不存在");
             }
 
             Collection collection = new Collection(0,username,goodsId,goods.getMsg(),goods.getStatus());
             collectionMapper.insert(collection);
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -54,9 +55,9 @@ public class UserCollectionServiceImpl implements UserCollectionService {
             QueryWrapper <Collection> wrapper = new QueryWrapper<>();
             wrapper.eq("username",username);
             IPage<Collection> collectionIPage = collectionMapper.selectPage(new Page<>(page, size), wrapper);
-            return new RestResult(1,"操作成功",collectionIPage.getRecords());
+            return ResultUtils.success(collectionIPage.getRecords());
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -84,9 +85,9 @@ public class UserCollectionServiceImpl implements UserCollectionService {
                 result.put("errors",errors);
                 return result;
             }
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 

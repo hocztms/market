@@ -9,6 +9,7 @@ import com.hocztms.mapper.IllegalMapper;
 import com.hocztms.service.*;
 import com.hocztms.utils.EamilUtils;
 import com.hocztms.vo.IllegalGoodsVo;
+import com.hocztms.vo.IllegalUserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -130,6 +131,19 @@ public class AdminServiceImpl implements AdminService {
             return new RestResult(1,"为您查找到以下用户",illegalUsers);
         }catch (Exception e){
             System.out.println(e.getMessage());
+            return new RestResult(0,"操作失败",null);
+        }
+    }
+
+    @Override
+    public RestResult adminUpUserIllegalNum(IllegalUserVo illegalUserVo) {
+        try {
+            illegalUserService.updateIllegalUserNumByUsername(illegalUserVo.getUsername());
+
+            userMessageService.sendUsersMessage(illegalUserVo.getUsername(),"您恶意举报" + illegalUserVo.getMsg()+"违法记录+1...",2,0);
+
+            return new RestResult(1,"操作成功",null);
+        }catch (Exception e){
             return new RestResult(0,"操作失败",null);
         }
     }

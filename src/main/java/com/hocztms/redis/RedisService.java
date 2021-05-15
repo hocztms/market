@@ -16,6 +16,13 @@ public class RedisService {
 
     public static String loginLimitPrefix = "loginLimit&";
 
+    public static String registerPrefix = "register$";
+
+    public static String loginPrefix = "login$";
+
+    public static String updateEmailPrefix = "updateEmail&";
+
+
     @Autowired
     private RedisTemplate<String, Date> jwtRedisTemplate;
 

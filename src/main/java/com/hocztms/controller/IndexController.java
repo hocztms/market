@@ -4,6 +4,7 @@ import com.hocztms.common.RestResult;
 import com.hocztms.service.IndexGoodsService;
 import com.hocztms.service.LabelService;
 import com.hocztms.service.PictureService;
+import com.hocztms.utils.ResultUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,7 +39,7 @@ public class IndexController {
                                long size,
                                @ApiParam(value = "0 综合 1价格升序 2价格降序 3二手程度升序 4二手程度降序")@RequestParam(required = false,defaultValue = "0") int mode){
         if (page==0||size==0){
-            return new RestResult(0,"数据格式错误",null);
+            return ResultUtils.error(0,"数据非法");
         }
         return indexGoodsService.indexGetGoods(page,size,mode);
     }
@@ -55,7 +56,7 @@ public class IndexController {
              @ApiParam(value = "0 综合 1价格升序 2价格降序 3二手程度升序 4二手程度降序")@RequestParam(required = false,defaultValue = "0") int mode){
         log.info("getGoodsByLabel执行了.....");
         if (page==0||size==0){
-            return new RestResult(0,"数据格式错误",null);
+            return ResultUtils.error(0,"数据非法");
         }
         return indexGoodsService.indexGetGoodsByLabel(page,size,labelId,mode);
     }
@@ -70,7 +71,7 @@ public class IndexController {
             String keyword,
             @ApiParam(value = "0 综合 1价格升序 2价格降序 3二手程度升序 4二手程度降序")@RequestParam(required = false,defaultValue = "0") int mode){
         if (page==0||size==0||keyword==null){
-            return new RestResult(0,"数据格式错误",null);
+            return ResultUtils.error(0,"数据非法");
         }
         return indexGoodsService.indexGetGoodsByKeyword(page,size,keyword,mode);
     }

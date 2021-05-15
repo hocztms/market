@@ -9,6 +9,7 @@ import com.hocztms.service.GoodsService;
 import com.hocztms.service.PictureService;
 import com.hocztms.service.UserMessageService;
 import com.hocztms.utils.FileUtils;
+import com.hocztms.utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,14 +38,14 @@ public class PictureServiceImpl implements PictureService {
         //权限校验 goods的seller与jwt比对
         Goods goods = goodsService.findGoodsByGoodsId(goodsId);
         if (goods==null){
-            return new RestResult(0,"商品不存在",null);
+            return ResultUtils.error(0,"商品不存在");
         }
         if (!goods.getSeller().equals(username)){
-            return new RestResult(0,"无权限",null);
+            return ResultUtils.error(0,"无权限");
         }
 
         if (file.isEmpty()) {
-            return new RestResult(0,"文件不能为空",null);
+            return ResultUtils.error(0,"文件不能为空");
         }
 
 
@@ -55,12 +56,12 @@ public class PictureServiceImpl implements PictureService {
 
         //检查文件格式
         if(!fileUtils.checkPictureSuffixName(suffixName)){
-            return new RestResult(0,"文件格式不正确",null);
+            return ResultUtils.error(0,"文件格式不正确");
         }
 
         //判断文件大小
         if (fileUtils.checkFileSize(file.getSize(),2,"M")){
-            return new RestResult(0,"图片不能超过2M",null);
+            return ResultUtils.error(0,"图片不能超过2M");
         }
 
 
@@ -71,7 +72,7 @@ public class PictureServiceImpl implements PictureService {
 
         //上传文件并检查图片是否合法
         if (fileUtils.uploadPicture(fileName,file)==0) {
-            return new RestResult(0, "文件上传失败", null);
+            return ResultUtils.error(0, "文件上传失败 非法图片");
         }
 
         //上传至数据库
@@ -82,14 +83,14 @@ public class PictureServiceImpl implements PictureService {
             insertPicture(picture);
         }catch (Exception e){
             log.warn(e.getMessage());
-            return new RestResult(0,e.getMessage(),null);
+            return ResultUtils.error(-1,"error");
         }
 
 
         goodsService.updateGoodsTag(goodsId,0);
         userMessageService.sendAdminGoodsMessage();
         userMessageService.sendUsersMessage(username,"商品图片上传成功,请等待管理员审核。。。。。",0,goods.getId());
-        return new RestResult(1,"上传成功",null);
+        return ResultUtils.success();
     }
 
     @Override
@@ -117,10 +118,10 @@ public class PictureServiceImpl implements PictureService {
                 result.put("errors",errors);
                 return result;
             }
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
             log.warn(e.getMessage());
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -131,21 +132,21 @@ public class PictureServiceImpl implements PictureService {
             System.out.println(goodsId);
             Goods good = goodsService.findGoodsByGoodsId(goodsId);
             if (good==null){
-                return new RestResult(0,"商品不存在",null);
+                return ResultUtils.error(0,"商品不存在");
             }
             Picture mainPicture = findGoodsMainPicture(goodsId);
             if(mainPicture==null){
                 List<Picture> pictures = findPictureByGoodsId(goodsId);
                 if (pictures.isEmpty()){
-                    return new RestResult(0,"商品图片不存在",null);
+                    return ResultUtils.error(0,"商品图片不存在");
                 }
-                return new RestResult(0,"不存在主图随机找个图片代替",pictures.get(0).getPicturename());
+                return ResultUtils.success("不存在主图随机找个图片代替",pictures.get(0).getPicturename());
             }
 
-            return new RestResult(1,"成功",mainPicture.getPicturename());
+            return ResultUtils.success(mainPicture.getPicturename());
         }catch (Exception e){
             log.warn(e.getMessage());
-            return new RestResult(0,"系统异常 请联系管理员",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 

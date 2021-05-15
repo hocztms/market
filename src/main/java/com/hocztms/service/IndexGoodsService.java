@@ -8,4 +8,7 @@ public interface IndexGoodsService {
     RestResult indexGetGoodsByLabel(long page,long size,long labelId,int mode);
 
     RestResult indexGetGoodsByKeyword(long page, long size, String keyword,int mode);
+
+    RestResult indexGetGoodsByKeywordInModeZero(long page, long size, String keyword);
+
 }

@@ -4,11 +4,13 @@ import com.hocztms.common.RestResult;
 import com.hocztms.entity.Email;
 import com.hocztms.entity.Goods;
 import com.hocztms.entity.Users;
+import com.hocztms.redis.RedisService;
 import com.hocztms.service.EmailService;
 import com.hocztms.service.GoodsService;
 import com.hocztms.service.UserService;
 import com.hocztms.utils.CodeUtils;
 import com.hocztms.utils.EamilUtils;
+import com.hocztms.utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -51,11 +53,11 @@ public class EmailServiceImpl implements EmailService {
             Users users = userService.findUsersByEmail(email);
 
             if (users==null){
-                return new RestResult(0,"账号不存在",null);
+                return ResultUtils.error(0,"账号不存在");
             }
 
             if (codeRedisTemplate.opsForValue().get("re&"+users.getUsername())!=null){
-                return new RestResult(0,"已发送,请勿重新获取",null);
+                return ResultUtils.error(0,"已发送,请勿重新获取");
             }
 
             String secret = String.valueOf(UUID.randomUUID());
@@ -67,10 +69,11 @@ public class EmailServiceImpl implements EmailService {
             codeRedisTemplate.opsForValue().set("re&"+users.getUsername(),secret,10, TimeUnit.MINUTES);
 
             eamilUtils.sendGetPasswordEamil(sendEmail);
+
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,e.getMessage(),null);
+            return ResultUtils.error(-1,"error");
         }
-        return new RestResult(1,"发送成功",null);
     }
 
     @Override
@@ -94,19 +97,19 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public RestResult sendRegisterEmailCode(String email, HttpSession httpSession) {
         try {
-            if (codeRedisTemplate.opsForValue().get("register$"+email)!=null){
+            if (codeRedisTemplate.opsForValue().get(RedisService.registerPrefix+email)!=null){
                 return new RestResult(0,"请勿重复获取",null);
             }
 
             //生成随机数 //同时 存入redis
-            String code = codeUtils.generateCode("register$"+email,1);
+            String code = codeUtils.generateCode(RedisService.registerPrefix+email,1);
 
 
             Users users = userService.findUsersByEmail(email);
 
             if (users!=null){
                 log.warn(email + "已经被注册.....");
-                return new RestResult(0,"邮箱已被注册",null);
+                return ResultUtils.error(0,"邮箱已被注册");
             }
 
             log.info("sendRegisterEmailCode..."+email + "   "+ code);
@@ -114,9 +117,9 @@ public class EmailServiceImpl implements EmailService {
 
             Email sendEmail = new Email(null,email,"Register",null,new Date(),code);
             eamilUtils.sendCodeEmail(sendEmail);
-            return new RestResult(1,"验证码已发送",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"发送失败",null);
+            return ResultUtils.error(-1,"error");
         }
 
     }
@@ -124,19 +127,19 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public RestResult getUpdateEmailCode(String username) {
         try {
-            if (codeRedisTemplate.opsForValue().get("updateEmail:"+username)!=null){
-                return new RestResult(0,"请勿重复获取",null);
+            if (codeRedisTemplate.opsForValue().get(RedisService.updateEmailPrefix+username)!=null){
+                return ResultUtils.error(0,"请勿重复获取");
             }
 
-            String code = codeUtils.generateCode("updateEmail&" + username,5);
+            String code = codeUtils.generateCode(RedisService.updateEmailPrefix + username,5);
             Users user = userService.findUsersByUsername(username);
 
             Email email  = new Email(username,user.getEmail(),"updateEmail","您本次修改邮箱验证码为" + code + "5分钟有效",new Date(),code);
             eamilUtils.sendEmail(email);
 
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 

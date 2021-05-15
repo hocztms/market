@@ -65,11 +65,11 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
                 //静态资源过滤
-                .antMatchers("/images/**").permitAll()
-                .antMatchers("/client/**").permitAll()
+//                .antMatchers("/images/**").permitAll()
+//                .antMatchers("/client/**").permitAll()
 
                 //socket测试
-                .antMatchers("/socket/**").permitAll()
+//                .antMatchers("/socket/**").permitAll()
 
                 //swagger过滤
                 .antMatchers("/v2/api-docs", "/swagger-resources/configuration/ui",

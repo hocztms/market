@@ -8,7 +8,9 @@ import com.hocztms.service.AdminService;
 import com.hocztms.service.GoodsService;
 import com.hocztms.service.ReportService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.IllegalGoodsVo;
+import com.hocztms.vo.IllegalUserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -59,7 +61,7 @@ public class AdminController {
             @ApiParam(value = "每页大小") long size
     ){
         if (page==0||size==0){
-            return new RestResult(0,"数据非法",null);
+            return ResultUtils.error(0,"数据非法");
         }
         return adminService.adminGetGoods(page,size);
     }
@@ -72,7 +74,7 @@ public class AdminController {
     public RestResult deleteGoods(
             @Valid @RequestBody IllegalGoodsVo goodsVo){
         if (goodsVo==null){
-            return new RestResult   (0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据不能为空");
         }
         else {
             log.info(goodsVo.toString());
@@ -88,7 +90,7 @@ public class AdminController {
     public RestResult passGoods(
             @ApiParam(value = "JSON数据 格式 例如 1")@RequestBody Long goodsId){
         if (goodsId==null){
-            return new RestResult(0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据不能为空");
         }
         else {
             return adminService.adminPassGoods(goodsId);
@@ -104,7 +106,7 @@ public class AdminController {
             @ApiParam(value = "页数") long page,
             @ApiParam(value = "每页大小") long size){
         if (page==0||size==0){
-            return new RestResult(0,"数据格式错误",null);
+            return ResultUtils.error(0,"数据非法");
         }
         return adminService.adminGetIllegalUser(page,size);
     }
@@ -127,7 +129,7 @@ public class AdminController {
             @ApiParam(value = "格式 {\"username\":\"username\"}") @RequestBody String JsonUsername){
         String username = JSONObject.parseObject(JsonUsername).getObject("username",String.class);
         if (username==null){
-            return new RestResult(0,"数据格式错误",null);
+            return ResultUtils.error(0,"数据非法");
         }
         return adminService.adminFreezeUser(username);
     }
@@ -142,9 +144,21 @@ public class AdminController {
     ){
         String username = JSONObject.parseObject(JsonUsername).getObject("username",String.class);
         if (username==null){
-            return new RestResult(0,"数据格式错误",null);
+            return ResultUtils.error(0,"数据非法");
         }
         return adminService.adminUnFreezeUser(username);
+    }
+
+
+    /*
+    增加用户 违法记录  应用场景：用户恶意举报反馈
+     */
+    @ApiOperation("增加用户 违法记录  应用场景：用户恶意举报反馈")
+    @PutMapping("/upUserIllegalNum")
+    public RestResult upUserIllegalNum(
+            @Valid @RequestBody IllegalUserVo illegalUserVo
+            ){
+        return adminService.adminUpUserIllegalNum(illegalUserVo);
     }
 
     /*
@@ -211,7 +225,7 @@ public class AdminController {
             @ApiParam(value = "商品id  传JSON 类似 [0,1,2,3....]") @RequestBody List<Long> ids
     ){
         if (ids.isEmpty()){
-            return new RestResult(0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据非法");
         }
         return reportService.adminDeleteReport(ids);
     }

@@ -4,6 +4,7 @@ import com.hocztms.common.RestResult;
 import com.hocztms.entity.Address;
 import com.hocztms.service.AddressService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
+import com.hocztms.utils.ResultUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class UserAddressController {
     @PostMapping("/createAddress")
     public RestResult createAddress(@RequestBody Address address, HttpServletRequest request) {
         if (addressService.isEmpty(address)) {
-            return new RestResult(0, "数据不能为空", null);
+            return ResultUtils.error(0,"数据非法");
         }
         String username = jwtAuthService.getTokenUsername(request);
         return addressService.createAddress(address, username);
@@ -57,7 +58,7 @@ public class UserAddressController {
     @DeleteMapping("/deleteAddress")
     public RestResult deleteAddress(@RequestBody List<Long> ids, HttpServletRequest request){
         if (ids.isEmpty()){
-            return new RestResult(0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据非法");
         }
         String username = jwtAuthService.getTokenUsername(request);
         return addressService.deleteUserAddressByAddressIds(ids,username);
@@ -70,7 +71,7 @@ public class UserAddressController {
     @PutMapping("/updateAddress")
     public RestResult updateAddress(@RequestBody Address address, HttpServletRequest request) {
         if (addressService.isEmpty(address)) {
-            return new RestResult(0, "数据不能为空", null);
+            return ResultUtils.error(0,"数据非法");
         }
         String username = jwtAuthService.getTokenUsername(request);
         return addressService.updateUserAddress(address,username);

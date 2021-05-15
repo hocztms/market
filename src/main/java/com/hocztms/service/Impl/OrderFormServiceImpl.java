@@ -8,7 +8,9 @@ import com.hocztms.entity.OrderFormCancelRecords;
 import com.hocztms.entity.Users;
 import com.hocztms.mapper.OrderFormMapper;
 import com.hocztms.service.*;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.OrderFormVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class OrderFormServiceImpl implements OrderFormService {
 
     @Autowired
@@ -41,15 +44,15 @@ public class OrderFormServiceImpl implements OrderFormService {
         try {
             Goods goods = goodsService.findGoodsByGoodsId(orderForm.getGoodsId());
             if (goods==null||goods.getStatus()!=1||goods.getTag()!=1){
-                return new RestResult(0,"商品当前状态不可购买!",null);
+                return ResultUtils.error(0,"商品当前状态不可购买!");
             }
 
             if (goods.getSeller().equals(username)){
-                return new RestResult(0,"不允许刷单",null);
+                return ResultUtils.error(0,"不允许刷单");
             }
 
             if (goodsService.updateOptimisticLockGoods(orderForm.getGoodsId())==0){
-                return new RestResult(0,"下单失败,商品已售出",null);
+                return ResultUtils.error(0,"下单失败,商品已售出");
             }
 
             OrderForm lastForm = this.initializeOrderForm(orderForm,username);
@@ -57,10 +60,10 @@ public class OrderFormServiceImpl implements OrderFormService {
 
             userMessageService.sendUsersMessage(lastForm.getUsername(),"您的商品下单成功 商家联系方式为  " + userService.userContactToStringByUsername(lastForm.getSeller()),1,lastForm.getId());
             userMessageService.sendUsersMessage(lastForm.getSeller(),"您的商品已有新订单 商品id:" + orderForm.getGoodsId() + "买家联系方式为" +userService.userContactToStringByUsername(lastForm.getSeller()),1,lastForm.getId());
-            return new RestResult(1,"成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            System.out.println(e.getMessage());
-            return new RestResult(0,"下单失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -71,9 +74,10 @@ public class OrderFormServiceImpl implements OrderFormService {
             wrapper.eq("username",username);
             wrapper.eq("buyer_deleted",0);
             List<OrderForm> orderForms = orderFormMapper.selectList(wrapper);
-            return new RestResult(1,"成功",orderForms);
+            return ResultUtils.success(orderForms);
         }catch (Exception e){
-            return new RestResult(0,"失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -84,9 +88,10 @@ public class OrderFormServiceImpl implements OrderFormService {
             wrapper.eq("seller",username);
             wrapper.eq("seller_deleted",0);
             List<OrderForm> orderForms = orderFormMapper.selectList(wrapper);
-            return new RestResult(1,"成功",orderForms);
+            return ResultUtils.success(orderForms);
         }catch (Exception e){
-            return new RestResult(0,"失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -121,9 +126,10 @@ public class OrderFormServiceImpl implements OrderFormService {
                 result.put("errors",errors);
                 return result;
             }
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -157,9 +163,10 @@ public class OrderFormServiceImpl implements OrderFormService {
                 result.put("errors",errors);
                 return result;
             }
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -168,15 +175,15 @@ public class OrderFormServiceImpl implements OrderFormService {
         try {
             OrderForm order = findOrderFormById(id);
             if (!order.getSeller().equals(username)){
-                return new RestResult(0,"无权限",null);
+                return ResultUtils.error(0,"无权限");
             }
 
             if (order.getTag()==1){
-                return new RestResult(0,"订单已完成,非法操作",null);
+                return ResultUtils.error(0,"订单已完成,非法操作");
             }
 
             if (order.getTag()==-1){
-                return new RestResult(0,"请勿重复提交",null);
+                return ResultUtils.error(0,"请勿重复提交");
             }
 
             OrderFormCancelRecords records = recordsService.findRecordsByOrderFormId(order.getId());
@@ -187,23 +194,24 @@ public class OrderFormServiceImpl implements OrderFormService {
 
                 userMessageService.sendUsersMessage(order.getUsername(),"您有新的订单通知 订单号为" + order.getId() + "待取消",1,order.getId());
                 userMessageService.sendUsersMessage(order.getSeller(),"您的订单号为" + order.getId() + "已经取消等待买家核实",1,order.getId());
-                return new RestResult(1,"操作成功,等待买家核实",null);
+                return ResultUtils.success("操作成功,等待买家核实",null);
             }
 
             if (records.getSellerConfirmed()==1){
-                return new RestResult(0,"已确认取消订单,请勿重复操作",null);
+                return ResultUtils.error(0,"已确认取消订单,请勿重复操作");
             }
 
             //数据库设置级联 到这层只可能 买家已经取消过 所以可以直接删除
             if (deleteFormById(id)==0||goodsService.updateGoodsStatusById(order.getGoodsId(),1)==0){
-                return new RestResult(0,"操作失败",null);
+                return ResultUtils.error(0,"操作失败");
             }
 
             userMessageService.sendUsersMessage(order.getUsername(),"您的订单号为" + order.getId() + "取消成功",1,order.getId());
             userMessageService.sendUsersMessage(order.getSeller(),"您的订单号为" + order.getId() + "取消成功",1,order.getId());
-            return new RestResult(1,"订单已取消",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -212,15 +220,15 @@ public class OrderFormServiceImpl implements OrderFormService {
         try {
             OrderForm order = findOrderFormById(id);
             if (!order.getUsername().equals(username)){
-                return new RestResult(0,"无权限",null);
+                return ResultUtils.error(0,"无权限");
             }
 
             if (order.getTag()==1){
-                return new RestResult(0,"订单已完成,非法操作",null);
+                return ResultUtils.error(0,"订单已完成,非法操作");
             }
 
             if (order.getTag()==-1){
-                return new RestResult(0,"请勿重复提交",null);
+                return ResultUtils.error(0,"请勿重复提交");
             }
 
             OrderFormCancelRecords records = recordsService.findRecordsByOrderFormId(order.getId());
@@ -230,23 +238,24 @@ public class OrderFormServiceImpl implements OrderFormService {
                 updateOrderFormTagById(order.getId(),-1);
                 userMessageService.sendUsersMessage(order.getUsername(),"您的订单号为" + order.getId() + "已经取消等待商家核实",1,order.getId());
                 userMessageService.sendUsersMessage(order.getSeller(),"您有新的订单通知 订单号为" + order.getId() + "待取消",1,order.getId());
-                return new RestResult(1,"操作成功,等待卖家核实",null);
+                return ResultUtils.success("操作成功,等待卖家核实",null);
             }
 
             if (records.getBuyerConfirmed()==1){
-                return new RestResult(0,"已确认取消订单,请勿重复操作",null);
+                return ResultUtils.error(0,"已确认取消订单,请勿重复操作");
             }
 
             //数据库设置级联 到这层只可能 卖家已经取消过 所以可以直接删除
             if (deleteFormById(id)==0||goodsService.updateGoodsStatusById(order.getGoodsId(),1)==0){
-                return new RestResult(0,"操作失败",null);
+                return ResultUtils.error(0,"操作失败");
             }
 
             userMessageService.sendUsersMessage(order.getUsername(),"您的订单号为" + order.getId() + "取消成功",1,order.getId());
             userMessageService.sendUsersMessage(order.getSeller(),"您的订单号为" + order.getId() + "取消成功",1,order.getId());
-            return new RestResult(1,"订单已取消",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -256,25 +265,26 @@ public class OrderFormServiceImpl implements OrderFormService {
             OrderForm orderForm = findOrderFormById(id);
 
             if (!orderForm.getUsername().equals(username)){
-                return new RestResult(0,"无权限",null);
+                return ResultUtils.error(0,"无权限");
             }
             if (orderForm.getTag()==1){
-                return new RestResult(0,"请勿重新操作",null);
+                return ResultUtils.error(0,"请勿重新操作");
             }
 
             if (orderForm.getTag()==-1){
-                return new RestResult(0,"当前状态不能取消",null);
+                return ResultUtils.error(0,"当前状态不能取消");
             }
 
             orderForm.setTag(1);
             if (orderFormMapper.updateById(orderForm)==0){
-                return new RestResult(0,"确认失败",null);
+                return ResultUtils.error(0,"确认失败");
             }
             userMessageService.sendUsersMessage(orderForm.getUsername(),"您的订单号为" + orderForm.getId() + "已完成",1,orderForm.getId());
             userMessageService.sendUsersMessage(orderForm.getSeller(),"您的订单号为" + orderForm.getId() + "已完成",1,orderForm.getId());
-            return new RestResult(1,"确认成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -284,12 +294,13 @@ public class OrderFormServiceImpl implements OrderFormService {
             OrderForm orderFormById = findOrderFormById(id);
 
             if (!orderFormById.getSeller().equals(username)&&!orderFormById.getUsername().equals(username)){
-                return new RestResult(0,"无权限",null);
+                return ResultUtils.error(0,"无权限");
             }
 
-            return new RestResult(1,"操作成功",orderFormById);
+            return ResultUtils.success(orderFormById);
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            log.warn(e.getMessage());
+            return ResultUtils.error(-1,"error");
         }
 
     }

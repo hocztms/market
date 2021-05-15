@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/socket")
+/*
+websocket测试
+ */
 public class WebSocketController {
 
     @Autowired
@@ -30,5 +33,4 @@ public class WebSocketController {
     public void testSocket1(HttpServletRequest request) {
         webSocketServer.onClose(request.getHeader("token"));
     }
-
 }

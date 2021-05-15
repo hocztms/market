@@ -43,7 +43,7 @@ public class CodeUtils {
 
         //存入redis 1分钟有效
         codeRedisTemplate.opsForValue().set(key,stringBuffer.toString(),1, TimeUnit.MINUTES);
-        log.info(key + "本次密钥为" + stringBuffer.toString());
+        log.info(key + "本次验证码为" + stringBuffer.toString());
         return bufferedImage;
 //        ImageIO.write(bi,"JPG",response.getOutputStream());
     }

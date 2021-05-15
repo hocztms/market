@@ -5,6 +5,7 @@ import com.hocztms.service.GoodsService;
 import com.hocztms.service.PictureService;
 import com.hocztms.service.UserService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.GoodsLabelVo;
 import com.hocztms.vo.GoodsVo;
 import io.swagger.annotations.Api;
@@ -50,7 +51,7 @@ public class UserGoodsController {
             @ApiParam(value = "图片") MultipartFile file,
             HttpServletRequest request) {
         if (file == null) {
-            return new RestResult(0, "数据不能为空", null);
+            return ResultUtils.error(0,"数据非法");
         } else {
             String username = jwtAuthService.getTokenUsername(request);
             log.info(username + "uploadPicture执行了...");
@@ -80,7 +81,7 @@ public class UserGoodsController {
             @ApiParam(value = "商品标签id  传JSON 类似 0")@RequestBody Long id,
             HttpServletRequest request) {
         if(id==null){
-            return new RestResult(0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据非法");
         }
         String username = jwtAuthService.getTokenUsername(request);
         return goodsService.deleteGoodsLabelById(id,username);
@@ -135,7 +136,7 @@ public class UserGoodsController {
             @ApiParam(value = "商品id  传JSON 类似 [0,1,2,3....]") @RequestBody List<Long> ids,
             HttpServletRequest request){
         if (ids.isEmpty()){
-            return new RestResult(0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据非法");
         }
         String username = jwtAuthService.getTokenUsername(request);
         return goodsService.deleteUserGoodsByIds(ids,username);
@@ -174,7 +175,7 @@ public class UserGoodsController {
             @ApiParam(value = "商品图片id  传JSON 类似 [0,1,2,3....]") @RequestBody List<Long> ids,
             HttpServletRequest request){
         if (ids.isEmpty()){
-            return new RestResult(0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据非法");
         }
         String username = jwtAuthService.getTokenUsername(request);
         return pictureService.deleteGoodsPictureByIds(ids,username);

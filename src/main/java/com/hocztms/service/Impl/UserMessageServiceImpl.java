@@ -6,6 +6,7 @@ import com.hocztms.common.RestResult;
 import com.hocztms.entity.Message;
 import com.hocztms.mapper.MessageMapper;
 import com.hocztms.service.UserMessageService;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.MessageVo;
 import com.hocztms.vo.SocketMessage;
 import com.hocztms.webSocket.WebSocketServer;
@@ -50,9 +51,9 @@ public class UserMessageServiceImpl implements UserMessageService {
                 result.put("errors",errors);
                 return result;
             }
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -80,9 +81,9 @@ public class UserMessageServiceImpl implements UserMessageService {
                 result.put("errors",errors);
                 return result;
             }
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -90,7 +91,7 @@ public class UserMessageServiceImpl implements UserMessageService {
     public RestResult userFeedback(MessageVo messageVo, String username) {
         try {
             if (getUserTodayFeedBackNum(username)>=3){
-                return new RestResult(0,"已达今日反馈上限",null);
+                return ResultUtils.error(0,"已达今日反馈上限");
             }
 
 
@@ -98,10 +99,10 @@ public class UserMessageServiceImpl implements UserMessageService {
             messageMapper.insert(message);
 
             webSocketServer.sendInfo(message.getUsername(),jsonTOStringWebSocketMsg(1,message));
-            return new RestResult(1,"操作成功",null);
 
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"操作失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -166,9 +167,9 @@ public class UserMessageServiceImpl implements UserMessageService {
     public RestResult findUserMsgByUsername(String username) {
         try {
             List<Message> messages = findMsgByUsername(username);
-            return new RestResult(1,"操作成功",messages);
+            return ResultUtils.success(messages);
         }catch (Exception e) {
-            return new RestResult(0, "失败", null);
+            return ResultUtils.error(-1,"error");
         }
     }
 

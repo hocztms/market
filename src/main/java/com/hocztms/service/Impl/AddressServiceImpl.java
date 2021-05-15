@@ -7,6 +7,7 @@ import com.hocztms.entity.Users;
 import com.hocztms.mapper.AddressMapper;
 import com.hocztms.service.AddressService;
 import com.hocztms.service.UserService;
+import com.hocztms.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +25,9 @@ public class AddressServiceImpl implements AddressService {
     public RestResult getUserAddress(String username) {
         try {
             List<Address> addresses = findAddressByUsername(username);
-            return new RestResult(1,"成功",addresses);
+            return ResultUtils.success(addresses);
         }catch (Exception e){
-            return new RestResult(0,"系统错误 联系管理员",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -35,19 +36,18 @@ public class AddressServiceImpl implements AddressService {
         try {
             Users users = userService.findUsersByUsername(username);
             if (users==null){
-                return new RestResult(0,"违法操作,用户名不存在",null);
+                return ResultUtils.error(0,"用户不存在");
             }
 
             if (!address.getUsername().equals(username)){
-                return new RestResult(0,"违法操作,无权限",null);
+                return ResultUtils.error(0,"无权限");
             }
 
             address.setUsername(username);
             addressMapper.insert(address);
-            return new RestResult(1,"成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            System.out.println(e.getMessage());
-            return new RestResult(0,"系统错误 联系管理员",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -59,10 +59,10 @@ public class AddressServiceImpl implements AddressService {
             for (Long id:ids){
                 Address address = findAddressById(id);
                 if (address==null){
-                    return new RestResult(0,id+"  地址不存在 非法操作",null);
+                    return ResultUtils.error(0,id+"  地址不存在 非法操作");
                 }
                 if (!address.getUsername().equals(username)){
-                    return new RestResult(0,id+"  无权限 非法操作",null);
+                    return ResultUtils.error(0,id+"  无权限 非法操作");
                 }
             }
 
@@ -76,7 +76,7 @@ public class AddressServiceImpl implements AddressService {
 
             return result;
         }catch (Exception e){
-            return new RestResult(0,"失败",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -84,15 +84,15 @@ public class AddressServiceImpl implements AddressService {
     public RestResult updateUserAddress(Address address, String username) {
         try {
             if(!address.getUsername().equals(username)){
-                return new RestResult(0,"无权限",null);
+                return ResultUtils.error(0,"无权限");
             }
 
             if(updateUserAddress(address)==0){
-                return new RestResult(0,"更改失败",null);
+                return ResultUtils.error(0,"更改失败");
             }
-            return new RestResult(1,"成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return new RestResult(0,"系统错误 联系管理员",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 

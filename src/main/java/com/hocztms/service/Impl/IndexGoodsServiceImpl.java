@@ -6,6 +6,7 @@ import com.hocztms.entity.Goods;
 import com.hocztms.mapper.GoodsMapper;
 import com.hocztms.service.GoodsService;
 import com.hocztms.service.IndexGoodsService;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.OrderBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,21 +30,20 @@ public class IndexGoodsServiceImpl implements IndexGoodsService {
             if (mode==0){
                 List<Goods> goodsList = goodsMapper.findGoods("date","desc",new Page(page,size));
                 if (goodsList.isEmpty()){
-                    return new RestResult(1,"没有了",goodsList);
+                    return ResultUtils.success("没有了",goodsList);
                 }
-                return new RestResult(1,"为你查找到以下商品",goodsList);
+                return ResultUtils.success("为你查找到以下商品",goodsList);
             }
             else {
                 OrderBy orderBy = goodsService.setOrderByByMode(mode);
                 List<Goods> goodsList = goodsMapper.findGoods(orderBy.getOrderBy(),orderBy.getBy(),new Page(page,size));
                 if (goodsList.isEmpty()) {
-                    return new RestResult(1, "没有了", goodsList);
+                    return ResultUtils.success("没有了", goodsList);
                 }
-                return new RestResult(1, "为你查找到以下商品", goodsList);
+                return ResultUtils.success("为你查找到以下商品", goodsList);
             }
         }catch (Exception e){
-            System.out.println(e.getMessage());
-            return new RestResult(0,"未知错误 请联系管理员",null);
+            return ResultUtils.error(-1,"error");
         }
     }
     /*
@@ -55,9 +55,9 @@ public class IndexGoodsServiceImpl implements IndexGoodsService {
             if (mode==0){
                 List<Goods> goodsList = goodsMapper.findGoodsByLabel(labelId,"date","desc",new Page(page,size));
                 if (goodsList.isEmpty()){
-                    return new RestResult(1,"没有了",goodsList);
+                    return ResultUtils.success("没有了",goodsList);
                 }
-                return new RestResult(1,"为你查找到以下商品",goodsList);
+                return ResultUtils.success("为你查找到以下商品",goodsList);
 
             }
 
@@ -65,37 +65,24 @@ public class IndexGoodsServiceImpl implements IndexGoodsService {
                 OrderBy orderBy = goodsService.setOrderByByMode(mode);
                 List<Goods> goodsList = goodsMapper.findGoodsByLabel(labelId,orderBy.getOrderBy(),orderBy.getBy(),new Page(page,size));
                 if (goodsList.isEmpty()) {
-                    return new RestResult(1, "没有了", goodsList);
+                    return ResultUtils.success("没有了", goodsList);
                 }
-                return new RestResult(1, "为你查找到以下商品", goodsList);
+                return ResultUtils.success("为你查找到以下商品", goodsList);
             }
         }catch (Exception e){
-            System.out.println(e.getMessage());
-            return new RestResult(0,"未知错误 请联系管理员",null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
     @Override
     public RestResult indexGetGoodsByKeyword(long page, long size, String keyword,int mode) {
         try {
+
+            //已匹配度优先方案
             if (mode==0){
-                List<Goods> checkGoods = goodsService.findGoodsPageByKeyword(page,size,keyword,"date","desc");
-
-                //关键词搜索不到应显示相关商品
-                if (checkGoods.isEmpty()){
-                    List<Goods> goodsByKeyWord = goodsMapper.findGoodsByKeyWord(keyword, new Page(page, size));
-                    if (goodsByKeyWord.isEmpty()){
-                        return new RestResult(1,"没有了",goodsByKeyWord);
-                    }
-                    return new RestResult(1,"为您查找到以下相关商品",goodsByKeyWord);
-                }
-                List<Goods> goodsList = goodsMapper.findGoodsByKeyWordByOrderBy(keyword,"date","desc",new Page(page,size));
-                if (goodsList.isEmpty()){
-                    return new RestResult(1,"没有了",goodsList);
-                }
-                return new RestResult(1,"为你查找到以下商品",goodsList);
-
+                return indexGetGoodsByKeywordInModeZero(page,size,keyword);
             }
+
 
             OrderBy orderBy = goodsService.setOrderByByMode(mode);
             List<Goods> checkGoods = goodsService.findGoodsPageByKeyword(0,size,keyword,orderBy.getOrderBy(),orderBy.getBy());
@@ -104,19 +91,37 @@ public class IndexGoodsServiceImpl implements IndexGoodsService {
             if (checkGoods.isEmpty()){
                 List<Goods> goodsByKeyWord = goodsMapper.findGoodsByKeyWordByOrderBy(keyword,orderBy.getOrderBy(),orderBy.getBy(),new Page(page, size));
                 if (goodsByKeyWord.isEmpty()){
-                    return new RestResult(1,"没有了",goodsByKeyWord);
+                    return ResultUtils.success("没有了",goodsByKeyWord);
                 }
-                return new RestResult(1,"抱歉没有查找到,但为您查找到以下相关商品",goodsByKeyWord);
+                return ResultUtils.success("抱歉没有查找到,但为您查找到以下相关商品",goodsByKeyWord);
             }
 
             List<Goods> goodsList = goodsService.findGoodsPageByKeyword(page,size,keyword,orderBy.getOrderBy(),orderBy.getBy());
             if (goodsList.isEmpty()){
-                return new RestResult(1,"没有了",goodsList);
+                return ResultUtils.success("没有了",goodsList);
             }
-            return new RestResult(1,"为你查找到以下商品",goodsList);
+            return ResultUtils.success("为你查找到以下商品",goodsList);
         }catch (Exception e){
-            System.out.println(e.getMessage());
-            return new RestResult(0,"未知错误 请联系管理员",null);
+            return ResultUtils.error(-1,"error");
         }
+    }
+
+    @Override
+    public RestResult indexGetGoodsByKeywordInModeZero(long page, long size, String keyword) {
+        List<Goods> checkGoods = goodsService.findGoodsPageByKeyword(page,size,keyword,"date","desc");
+
+        //关键词搜索不到应显示相关商品
+        if (checkGoods.isEmpty()){
+            List<Goods> goodsByKeyWord = goodsMapper.findGoodsByKeyWord(keyword, new Page(page, size));
+            if (goodsByKeyWord.isEmpty()){
+                return ResultUtils.success("没有了",goodsByKeyWord);
+            }
+            return ResultUtils.success("为您查找到以下相关商品",goodsByKeyWord);
+        }
+        List<Goods> goodsList = goodsMapper.findGoodsByKeyWordByOrderBy(keyword,"date","desc",new Page(page,size));
+        if (goodsList.isEmpty()){
+            return ResultUtils.success("没有了",goodsList);
+        }
+        return ResultUtils.success("为你查找到以下商品",goodsList);
     }
 }

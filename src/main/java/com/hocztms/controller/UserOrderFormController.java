@@ -3,6 +3,7 @@ package com.hocztms.controller;
 import com.hocztms.common.RestResult;
 import com.hocztms.service.OrderFormService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.OrderFormVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -77,7 +78,7 @@ public class UserOrderFormController {
     @DeleteMapping("/deleteOrderFormByBuy")
     public RestResult deleteOrderFormByBuy(@RequestBody List<Long> ids, HttpServletRequest request){
         if (ids.isEmpty()){
-            return new RestResult(0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据非法");
         }
         String username = jwtAuthService.getTokenUsername(request);
         return orderFormService.deleteBuyerOrderForm(ids,username);
@@ -90,7 +91,7 @@ public class UserOrderFormController {
     @DeleteMapping("/deleteOrderFormBySeller")
     public RestResult deleteOrderFormBySeller(@RequestBody List<Long> ids, HttpServletRequest request){
         if (ids.isEmpty()){
-            return new RestResult(0,"数据不能为空",null);
+            return ResultUtils.error(0,"数据非法");
         }
         String username = jwtAuthService.getTokenUsername(request);
         return orderFormService.deleteSellerOrderForm(ids,username);

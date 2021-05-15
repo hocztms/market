@@ -10,6 +10,7 @@ import com.hocztms.mapper.GoodsMapper;
 import com.hocztms.mapper.LabelMapper;
 import com.hocztms.service.*;
 import com.hocztms.utils.GoodsUtils;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.GoodsLabelVo;
 import com.hocztms.service.GoodsService;
 import com.hocztms.vo.GoodsVo;
@@ -56,7 +57,7 @@ public class GoodsServiceImpl implements GoodsService {
 
             Goods goods = initializeGoods(goodsVo, username);
             if (goodsMapper.insert(goods) == 0) {
-                return new RestResult(0, "操作失败", null);
+                return ResultUtils.error(0, "操作失败");
             }
 
             RestResult result = new RestResult(1, "操作成功", null);
@@ -71,7 +72,7 @@ public class GoodsServiceImpl implements GoodsService {
             userMessageService.sendAdminGoodsMessage();
             return result;
         } catch (Exception e) {
-            return new RestResult(0, e.getMessage(), null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -83,7 +84,7 @@ public class GoodsServiceImpl implements GoodsService {
             Goods goods = goodsMapper.selectOne(wrapper);
 
             if (goods == null) {
-                return new RestResult(0, "商品不存在", null);
+                return ResultUtils.error(0, "商品不存在");
             }
             RestResult result = new RestResult(1, "成功", null);
             List<Picture> goodsPicture = pictureService.findPictureByGoodsId(id);
@@ -96,8 +97,7 @@ public class GoodsServiceImpl implements GoodsService {
             result.put("goodsLabels", goodsLabelById.getData());
             return result;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new RestResult(0, "未知错误 请联系管理员", null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -128,9 +128,9 @@ public class GoodsServiceImpl implements GoodsService {
                 result.put("errors",errors);
                 return result;
             }
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         } catch (Exception e) {
-            return new RestResult(0, "失败", null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -141,12 +141,12 @@ public class GoodsServiceImpl implements GoodsService {
 
             //售出的商品就不能再更改信息 也不需要更改信息 而其他审核不通过 审核通过 未审核都能更改 且会更改状态 不需要单独去写 审核不通过重发布的接口
             if (goods.getStatus()==0){
-                return new RestResult(0,"商品已售出",null);
+                return ResultUtils.error(0,"商品已售出");
             }
 
             //鉴权
             if (!goods.getSeller().equals(username)) {
-                return new RestResult(0, "无权限", null);
+                return ResultUtils.error(0, "无权限");
             }
 
             //创建没有的商品标签
@@ -165,9 +165,9 @@ public class GoodsServiceImpl implements GoodsService {
 
             userMessageService.sendUsersMessage(username, "商品更新成功,请等待管理员审核。。。。。", 0, goods.getId());
             userMessageService.sendAdminGoodsMessage();
-            return new RestResult(1, "成功", null);
+            return ResultUtils.success();
         } catch (Exception e) {
-            return new RestResult(0, "失败", null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -178,9 +178,9 @@ public class GoodsServiceImpl implements GoodsService {
             QueryWrapper<GoodsLabel> wrapper = new QueryWrapper<>();
             wrapper.eq("goods_id", goodsId);
             List<GoodsLabel> goodsLabels = goodsLabelMapper.selectList(wrapper);
-            return new RestResult(1, "操作成功", goodsLabels);
+            return ResultUtils.success(goodsLabels);
         } catch (Exception e) {
-            return new RestResult(0, "操作失败", null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -189,10 +189,10 @@ public class GoodsServiceImpl implements GoodsService {
         try {
             Goods goodsByGoodsId = findGoodsByGoodsId(goodsLabelVo.getGoodsId());
             if (goodsByGoodsId.getStatus()==0){
-                return new RestResult(0,"商品已售出",null);
+                return ResultUtils.error(0,"商品已售出");
             }
             if (!username.equals(goodsByGoodsId.getSeller())) {
-                return new RestResult(0, "无权限", null);
+                return ResultUtils.error(0, "无权限");
             }
 
             if (!goodsLabelVo.getLabelIds().isEmpty()) {
@@ -205,9 +205,9 @@ public class GoodsServiceImpl implements GoodsService {
             userMessageService.sendAdminGoodsMessage();
             userMessageService.sendUsersMessage(username,"商品图片上传成功,请等待管理员审核。。。。。",0,goodsLabelVo.getGoodsId());
 
-            return new RestResult(1, "操作成功", null);
+            return ResultUtils.success();
         } catch (Exception e) {
-            return new RestResult(0, "操作失败", null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -217,16 +217,16 @@ public class GoodsServiceImpl implements GoodsService {
             GoodsLabel label = goodsLabelMapper.selectById(id);
             Goods goods = findGoodsByGoodsId(label.getGoodsId());
             if (!goods.getSeller().equals(username)) {
-                return new RestResult(0, "无权限", null);
+                return ResultUtils.error(0, "无权限");
             }
 
             if (goodsLabelMapper.deleteById(label.getId()) == 0) {
-                return new RestResult(0, "操作失败", null);
+                return ResultUtils.error(0, "操作失败");
             }
 
-            return new RestResult(1, "操作成功", null);
+            return ResultUtils.success();
         } catch (Exception e) {
-            return new RestResult(0, "操作失败", null);
+            return ResultUtils.error(-1,"error");
         }
     }
 

@@ -5,6 +5,7 @@ import com.hocztms.common.RestResult;
 import com.hocztms.redis.RedisService;
 import com.hocztms.service.AuthService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.AuthVo;
 import com.hocztms.vo.PasswordEmail;
 import com.hocztms.entity.Users;
@@ -64,14 +65,14 @@ public class UserBaseController {
     @PostMapping("/login")
     public RestResult userLogin (
             @Valid @RequestBody AuthVo authVo) {
-        if (codeUtils.codeIsEmpty(authVo.getUsername())){
-            return new RestResult(0,"请先获取验证码",null);
+        if (codeUtils.codeIsEmpty(RedisService.loginPrefix+authVo.getUsername())){
+            return ResultUtils.error(0,"请先获取验证码");
         }
-        if (!codeUtils.checkKeyValueByKey(authVo.getUsername(),authVo.getCode())){
-            return new RestResult(0,"验证码不正确",null);
+        if (!codeUtils.checkKeyValueByKey(RedisService.loginPrefix+authVo.getUsername(),authVo.getCode())){
+            return ResultUtils.error(0,"验证码不正确");
         }
         if (!redisService.checkUserLoginLimit(authVo.getUsername())){
-            return new RestResult(0,"登入失败过多 请15分钟后重试",null);
+            return ResultUtils.error(0,"密码错误达到限制 请15分钟后再登入");
         }
 
         return authService.authLogin(authVo.getUsername(),authVo.getPassword());
@@ -85,8 +86,8 @@ public class UserBaseController {
     public RestResult register(
             @Valid @RequestBody UserVo userVo)
     {
-        if (!codeUtils.checkKeyValueByKey("register$"+userVo.getEmail(),userVo.getCode())){
-            return new RestResult(0,"验证码不正确",null);
+        if (!codeUtils.checkKeyValueByKey(RedisService.registerPrefix+userVo.getEmail(),userVo.getCode())){
+            return ResultUtils.error(0,"验证码错误");
         }
         return authService.authRegister(new Users(userVo.getUsername(),userVo.getPassword(),userVo.getEmail(),userVo.getPhone(),1));
     }
@@ -138,7 +139,7 @@ public class UserBaseController {
     public void getCode(
             String username,
             HttpServletResponse response) throws IOException {
-        BufferedImage bi = codeUtils.getLoginImgCode(username);
+        BufferedImage bi = codeUtils.getLoginImgCode(RedisService.loginPrefix+username);
         ImageIO.write(bi,"JPG",response.getOutputStream());
     }
 

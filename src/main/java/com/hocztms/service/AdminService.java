@@ -3,6 +3,7 @@ package com.hocztms.service;
 import com.hocztms.common.RestResult;
 import com.hocztms.entity.Label;
 import com.hocztms.vo.IllegalGoodsVo;
+import com.hocztms.vo.IllegalUserVo;
 
 public interface AdminService {
 
@@ -13,6 +14,8 @@ public interface AdminService {
     RestResult adminPassGoods(Long goodId);
 
     RestResult adminGetIllegalUser(long page, long size);
+
+    RestResult adminUpUserIllegalNum(IllegalUserVo illegalUserVo);
 
     RestResult adminGetIllegalUserByUsername(String username);
 

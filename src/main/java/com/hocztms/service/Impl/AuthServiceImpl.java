@@ -8,6 +8,7 @@ import com.hocztms.service.AuthService;
 import com.hocztms.service.UserService;
 import com.hocztms.springSecurity.jwt.JwtAuthService;
 import com.hocztms.utils.EamilUtils;
+import com.hocztms.utils.ResultUtils;
 import com.hocztms.webSocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,9 +45,9 @@ public class AuthServiceImpl implements AuthService {
 
             //主动失效 设置黑名单 并关闭已存在socket
             redisService.userLogoutByServer(username);
-            return new RestResult(1,"操作成功",null);
+            return ResultUtils.success();
         }catch (Exception e){
-            return null;
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -55,21 +56,21 @@ public class AuthServiceImpl implements AuthService {
         try {
             Users users = userService.findUsersByUsername(username);
             if (users==null){
-                return new RestResult(0,"用户不存在",null);
+                return ResultUtils.error(0,"用户不存在");
             }
 
             if(users.getStatus()==0){
-                return new RestResult(0,"账户已冻结",null);
+                return ResultUtils.error(0,"账户已冻结");
             }
 
             if (!passwordEncoder.matches(password,users.getPassword())){
                 redisService.setUserLoginLimit(username);
-                return new RestResult(0,"密码错误",null);
+                return ResultUtils.error(0,"密码错误");
             }
 
             return jwtAuthService.login(username,password);
         }catch (Exception e){
-            return new RestResult(0,e.getMessage(),null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
@@ -81,14 +82,14 @@ public class AuthServiceImpl implements AuthService {
             Users usersByEmail = userService.findUsersByEmail(users.getEmail());
             Users usersByPhone = userService.findUsersByPhone(users.getPhone());
             if (usersByUsername != null) {
-                return new RestResult(0, "用户名已存在", null);
+                return ResultUtils.error(0, "用户名已存在");
             }
             if (usersByEmail!=null) {
-                return new RestResult(0, "该邮箱已注册", null);
+                return ResultUtils.error(0, "该邮箱已注册");
             }
 
             if (usersByPhone!=null) {
-                return new RestResult(0, "该手机号已注册", null);
+                return ResultUtils.error(0, "该手机号已注册");
             }
 
             //发送注册成功邮件
@@ -98,9 +99,9 @@ public class AuthServiceImpl implements AuthService {
 
             userService.insertUser(users);
 
-            return new RestResult(1, "注册成功", null);
+            return ResultUtils.success();
         } catch (Exception e) {
-            return new RestResult(0, e.getMessage(), null);
+            return ResultUtils.error(-1,"error");
         }
     }
 
