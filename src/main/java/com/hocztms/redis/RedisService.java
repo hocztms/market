@@ -16,6 +16,8 @@ public class RedisService {
 
     public static String loginLimitPrefix = "loginLimit&";
 
+    public static String rePasswordLimitPrefix = "rePasswordLimit&";
+
     public static String registerPrefix = "register$";
 
     public static String loginPrefix = "login$";
@@ -56,10 +58,27 @@ public class RedisService {
         limitRedisTemplate.opsForValue().set(loginLimitPrefix+username,Long.parseLong("1"),15,TimeUnit.MINUTES);
     }
 
+    public void setUserRePasswordLimit(String username){
+        Long limit = limitRedisTemplate.opsForValue().get(rePasswordLimitPrefix+username);
+        if (limit!=null){
+            limitRedisTemplate.opsForValue().set(rePasswordLimitPrefix+username,limit+1,1,TimeUnit.DAYS);
+            return;
+        }
+        limitRedisTemplate.opsForValue().set(rePasswordLimitPrefix+username,Long.parseLong("1"),1,TimeUnit.DAYS);
+    }
+
     public boolean checkUserLoginLimit(String username){
         Long limit = limitRedisTemplate.opsForValue().get(loginLimitPrefix+username);
         System.out.println(limit);
         if (limit==null||limit<5){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkUserRePasswordLimit(String username){
+        Long limit = limitRedisTemplate.opsForValue().get(rePasswordLimitPrefix+username);
+        if (limit==null||limit<3){
             return true;
         }
         return false;

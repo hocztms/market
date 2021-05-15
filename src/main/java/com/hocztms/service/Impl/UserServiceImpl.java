@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     public RestResult ReUserPasswordBySecret(PasswordEmail passwordEmail) {
         try{
             String keyValue = codeRedisTemplate.opsForValue().get("re&" + passwordEmail.getUsername());
-
+            System.out.println("re&" + passwordEmail.getUsername());
             if (keyValue==null){
                 return ResultUtils.error(0,"请重新获取密钥");
             }

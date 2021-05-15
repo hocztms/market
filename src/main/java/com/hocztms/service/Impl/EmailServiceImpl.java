@@ -41,6 +41,9 @@ public class EmailServiceImpl implements EmailService {
     @Resource
     private RedisTemplate<String, String> codeRedisTemplate;
 
+    @Autowired
+    private RedisService redisService;
+
 
 
     private static final long outTime  = 10*60*1000;//设置30分钟有效
@@ -56,6 +59,9 @@ public class EmailServiceImpl implements EmailService {
                 return ResultUtils.error(0,"账号不存在");
             }
 
+            if (!redisService.checkUserRePasswordLimit(users.getUsername())){
+                return ResultUtils.error(0,"已达上线 请24小时后重新获取");
+            }
             if (codeRedisTemplate.opsForValue().get("re&"+users.getUsername())!=null){
                 return ResultUtils.error(0,"已发送,请勿重新获取");
             }
@@ -67,6 +73,9 @@ public class EmailServiceImpl implements EmailService {
             Email sendEmail = new Email(users.getUsername(), email, "Get  Password", null, date, secret);
 
             codeRedisTemplate.opsForValue().set("re&"+users.getUsername(),secret,10, TimeUnit.MINUTES);
+
+            System.out.println("re&"+users.getUsername());
+            redisService.setUserRePasswordLimit(users.getUsername());
 
             eamilUtils.sendGetPasswordEamil(sendEmail);
 
@@ -97,13 +106,6 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public RestResult sendRegisterEmailCode(String email, HttpSession httpSession) {
         try {
-            if (codeRedisTemplate.opsForValue().get(RedisService.registerPrefix+email)!=null){
-                return new RestResult(0,"请勿重复获取",null);
-            }
-
-            //生成随机数 //同时 存入redis
-            String code = codeUtils.generateCode(RedisService.registerPrefix+email,1);
-
 
             Users users = userService.findUsersByEmail(email);
 
@@ -111,6 +113,14 @@ public class EmailServiceImpl implements EmailService {
                 log.warn(email + "已经被注册.....");
                 return ResultUtils.error(0,"邮箱已被注册");
             }
+
+            if (codeRedisTemplate.opsForValue().get(RedisService.registerPrefix+email)!=null){
+                return new RestResult(0,"请勿重复获取",null);
+            }
+
+            //生成随机数 //同时 存入redis
+            String code = codeUtils.generateCode(RedisService.registerPrefix+email,1);
+
 
             log.info("sendRegisterEmailCode..."+email + "   "+ code);
 

@@ -86,6 +86,9 @@ public class UserBaseController {
     public RestResult register(
             @Valid @RequestBody UserVo userVo)
     {
+        if (codeUtils.codeIsEmpty(RedisService.registerPrefix+userVo.getEmail())){
+            return ResultUtils.error(0,"请先获取验证码");
+        }
         if (!codeUtils.checkKeyValueByKey(RedisService.registerPrefix+userVo.getEmail(),userVo.getCode())){
             return ResultUtils.error(0,"验证码错误");
         }
@@ -105,7 +108,7 @@ public class UserBaseController {
     发送邮箱注册验证码  已测试
      */
     @ApiOperation("发送邮箱注册验证码")
-    @PostMapping("/sendEmailCode")
+    @PostMapping("/sendEmailRegisterCode")
     public RestResult register(@Valid @RequestBody EmailVo email, HttpServletRequest request) {
         return emailService.sendRegisterEmailCode(email.getEmail(),request.getSession());
     }
@@ -115,10 +118,10 @@ public class UserBaseController {
     用户找回密码  已测试
      */
     @ApiOperation("用户找回密码 传username 和 email")
-    @PostMapping("/getPassword")
+    @PostMapping("/sendRePasswordEmailCode")
     public RestResult getPassword(
-            @Valid @RequestBody UserPasswordVo users){
-        return emailService.sendPasswordEmail(users.getEmail());
+            @Valid @RequestBody EmailVo email){
+        return emailService.sendPasswordEmail(email.getEmail());
     }
 
     /*
