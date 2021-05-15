@@ -20,6 +20,8 @@ public class RedisService {
 
     public static String registerPrefix = "register$";
 
+    public static String rePasswordPrefix = "rePassword&";
+
     public static String loginPrefix = "login$";
 
     public static String updateEmailPrefix = "updateEmail&";

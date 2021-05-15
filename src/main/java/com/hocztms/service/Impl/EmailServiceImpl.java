@@ -62,7 +62,7 @@ public class EmailServiceImpl implements EmailService {
             if (!redisService.checkUserRePasswordLimit(users.getUsername())){
                 return ResultUtils.error(0,"已达上线 请24小时后重新获取");
             }
-            if (codeRedisTemplate.opsForValue().get("re&"+users.getUsername())!=null){
+            if (codeRedisTemplate.opsForValue().get(RedisService.rePasswordPrefix+users.getUsername())!=null){
                 return ResultUtils.error(0,"已发送,请勿重新获取");
             }
 
@@ -72,9 +72,8 @@ public class EmailServiceImpl implements EmailService {
             Date date = new Date(new Date().getTime() + outTime);
             Email sendEmail = new Email(users.getUsername(), email, "Get  Password", null, date, secret);
 
-            codeRedisTemplate.opsForValue().set("re&"+users.getUsername(),secret,10, TimeUnit.MINUTES);
+            codeRedisTemplate.opsForValue().set(RedisService.rePasswordPrefix +users.getUsername(),secret,10, TimeUnit.MINUTES);
 
-            System.out.println("re&"+users.getUsername());
             redisService.setUserRePasswordLimit(users.getUsername());
 
             eamilUtils.sendGetPasswordEamil(sendEmail);
