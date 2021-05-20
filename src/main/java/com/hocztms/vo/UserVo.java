@@ -17,6 +17,7 @@ public class UserVo {
 
     @ApiModelProperty(value = "用户名",required = true)
     @Pattern(regexp="^[\u4e00-\u9fa5_a-zA-Z0-9]+$",message="用户名只能有中文,数字,字母")
+    @Size(min = 1,max = 20,message = "用户名不能超过20位")
     private String username;
 
     @ApiModelProperty(value = "密码",required = true)

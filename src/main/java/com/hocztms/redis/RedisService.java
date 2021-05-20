@@ -72,7 +72,8 @@ public class RedisService {
     public boolean checkUserLoginLimit(String username){
         Long limit = limitRedisTemplate.opsForValue().get(loginLimitPrefix+username);
         System.out.println(limit);
-        if (limit==null||limit<5){
+        //5次限制
+        if (limit==null||limit<=5){
             return true;
         }
         return false;
@@ -80,7 +81,8 @@ public class RedisService {
 
     public boolean checkUserRePasswordLimit(String username){
         Long limit = limitRedisTemplate.opsForValue().get(rePasswordLimitPrefix+username);
-        if (limit==null||limit<3){
+        //3次限制
+        if (limit==null||limit<=3){
             return true;
         }
         return false;
