@@ -12,7 +12,7 @@ import javax.validation.constraints.*;
 @AllArgsConstructor
 @NoArgsConstructor
 //注册传输类
-@ApiModel
+@ApiModel(value = "用户注册类")
 public class UserVo {
 
     @ApiModelProperty(value = "用户名",required = true)
